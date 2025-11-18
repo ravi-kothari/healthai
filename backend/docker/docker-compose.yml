@@ -1,0 +1,149 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: healthcare-postgres
+    environment:
+      POSTGRES_USER: healthcare_user
+      POSTGRES_PASSWORD: healthcare_pass
+      POSTGRES_DB: healthcare_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U healthcare_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - healthcare-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: healthcare-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - healthcare-network
+
+  # HAPI FHIR Server
+  fhir-server:
+    image: hapiproject/hapi:latest
+    container_name: healthcare-fhir
+    environment:
+      spring.datasource.url: jdbc:postgresql://postgres:5432/fhir_db
+      spring.datasource.username: healthcare_user
+      spring.datasource.password: healthcare_pass
+      spring.datasource.driverClassName: org.postgresql.Driver
+      spring.jpa.properties.hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect
+      hapi.fhir.fhir_version: R4
+      hapi.fhir.subscription.resthook_enabled: true
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Health check disabled - HAPI FHIR container does not include curl/shell
+    # Server is functional and accessible at http://localhost:8081/fhir/metadata
+    # healthcheck:
+    #   test: ["CMD-SHELL", "curl -f http://localhost:8080/fhir/metadata || exit 1"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 5
+    #   start_period: 60s
+    networks:
+      - healthcare-network
+
+  # Azurite (Azure Storage Emulator)
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: healthcare-azurite
+    ports:
+      - "10000:10000"  # Blob service
+      - "10001:10001"  # Queue service
+      - "10002:10002"  # Table service
+    volumes:
+      - azurite_data:/data
+    command: "azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --loose"
+    networks:
+      - healthcare-network
+
+  # FastAPI Backend
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    container_name: healthcare-api
+    environment:
+      # Database (internal port is 5432, mapped to 5433 on host)
+      DATABASE_URL: postgresql://healthcare_user:healthcare_pass@postgres:5432/healthcare_db
+
+      # Redis (internal port is 6379, mapped to 6380 on host)
+      REDIS_URL: redis://redis:6379/0
+
+      # FHIR Server (internal port is 8080, mapped to 8081 on host)
+      FHIR_BASE_URL: http://fhir-server:8080/fhir
+
+      # Mock Azure Services (local development)
+      USE_MOCK_OPENAI: "true"
+      USE_MOCK_SPEECH: "true"
+      USE_MOCK_AUTH: "true"
+      AZURE_OPENAI_ENDPOINT: http://localhost:8081
+      AZURE_OPENAI_API_KEY: mock-key-for-local-dev
+      AZURE_SPEECH_KEY: mock-key-for-local-dev
+      AZURE_SPEECH_REGION: local
+
+      # Authentication
+      JWT_SECRET: local-dev-secret-change-in-production
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+
+      # Storage
+      AZURE_STORAGE_CONNECTION_STRING: DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;
+
+      # Application
+      LOG_LEVEL: DEBUG
+      ENVIRONMENT: local
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../src:/app/src
+      - ../tests:/app/tests
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      # fhir-server:
+      #   condition: service_healthy  # Commented out temporarily - FHIR not needed for auth testing
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - healthcare-network
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_data:
+  redis_data:
+  azurite_data:
+
+networks:
+  healthcare-network:
+    driver: bridge

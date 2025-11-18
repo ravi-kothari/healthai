@@ -1,0 +1,226 @@
+"use client";
+
+import React from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { signupSchema, SignupFormValues } from '@/lib/validators/auth';
+import { practiceTypes } from '@/lib/mock/documents';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Select } from '@/components/ui/Select';
+import { Checkbox } from '@/components/ui/Checkbox';
+import Link from 'next/link';
+import { Check } from 'lucide-react';
+
+export const SignupForm = () => {
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      agreement: false,
+    },
+  });
+
+  const password = watch('password', '');
+  const hasLowercase = /[a-z]/.test(password);
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasMinLength = password.length >= 8;
+
+  const onSubmit = async (data: SignupFormValues) => {
+    console.log('Form submitted:', data);
+    // Here you would typically make an API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    alert('Signup successful!');
+  };
+
+  return (
+    <Card className="w-full max-w-2xl mx-auto shadow-lg">
+      <CardHeader className="text-center space-y-2">
+        <CardTitle className="text-3xl font-bold">Get Started with SimplePractice</CardTitle>
+        <CardDescription className="text-lg">Free for 30 days, no credit card required</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* Full Name */}
+          <div>
+            <Label htmlFor="fullName" className="text-sm font-medium text-gray-700">
+              Full Name
+            </Label>
+            <div className="grid grid-cols-2 gap-3 mt-1">
+              <Input
+                id="firstName"
+                placeholder="Rakesh"
+                {...register('firstName')}
+                className={errors.firstName ? 'border-red-500' : ''}
+              />
+              <Input
+                id="lastName"
+                placeholder="Mondal"
+                {...register('lastName')}
+                className={errors.lastName ? 'border-red-500' : ''}
+              />
+            </div>
+            {(errors.firstName || errors.lastName) && (
+              <p className="text-sm text-red-600 mt-1">
+                {errors.firstName?.message || errors.lastName?.message}
+              </p>
+            )}
+          </div>
+
+          {/* Email */}
+          <div>
+            <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+              Email
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="saasui@rakeshmondal.in"
+              {...register('email')}
+              className={`mt-1 ${errors.email ? 'border-red-500' : ''}`}
+            />
+            {errors.email && (
+              <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div>
+            <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+              Password
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              {...register('password')}
+              className={`mt-1 ${errors.password ? 'border-red-500' : ''}`}
+            />
+
+            {/* Password requirements */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
+              <div className="flex items-center gap-2 text-sm">
+                <div className={`w-2 h-2 rounded-full ${hasLowercase ? 'bg-blue-600' : 'bg-gray-300'}`} />
+                <span className={hasLowercase ? 'text-blue-600' : 'text-gray-500'}>
+                  One lowercase letter
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <div className={`w-2 h-2 rounded-full ${hasUppercase ? 'bg-blue-600' : 'bg-gray-300'}`} />
+                <span className={hasUppercase ? 'text-blue-600' : 'text-gray-500'}>
+                  One uppercase letter
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <div className={`w-2 h-2 rounded-full ${hasNumber ? 'bg-blue-600' : 'bg-gray-300'}`} />
+                <span className={hasNumber ? 'text-blue-600' : 'text-gray-500'}>
+                  One number
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <div className={`w-2 h-2 rounded-full ${hasMinLength ? 'bg-blue-600' : 'bg-gray-300'}`} />
+                <span className={hasMinLength ? 'text-blue-600' : 'text-gray-500'}>
+                  8 characters min
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Phone */}
+          <div>
+            <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+              Mobile phone
+            </Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="(___) ___-____"
+              {...register('phone')}
+              className={`mt-1 ${errors.phone ? 'border-red-500' : ''}`}
+            />
+            <p className="text-xs text-gray-500 mt-1">For text verification to access your account.</p>
+            {errors.phone && (
+              <p className="text-sm text-red-600 mt-1">{errors.phone.message}</p>
+            )}
+          </div>
+
+          {/* Practice Type */}
+          <div>
+            <Label htmlFor="practiceType" className="text-sm font-medium text-gray-700">
+              What best describes your practice?
+            </Label>
+            <Select
+              id="practiceType"
+              {...register('practiceType')}
+              className={`mt-1 ${errors.practiceType ? 'border-red-500' : ''}`}
+            >
+              <option value="">Select One</option>
+              {practiceTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </Select>
+            {errors.practiceType && (
+              <p className="text-sm text-red-600 mt-1">{errors.practiceType.message}</p>
+            )}
+          </div>
+
+          {/* Agreement Checkbox */}
+          <div className="flex items-start space-x-3">
+            <Controller
+              name="agreement"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  id="agreement"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  className="mt-1"
+                />
+              )}
+            />
+            <div className="flex-1">
+              <label htmlFor="agreement" className="text-sm text-gray-700 leading-tight cursor-pointer">
+                On behalf of myself and the practice, I agree to the{' '}
+                <Link href="/baa" className="text-blue-600 hover:underline">
+                  Business Associate Agreement
+                </Link>
+                , the{' '}
+                <Link href="/terms" className="text-blue-600 hover:underline">
+                  Terms of Service
+                </Link>
+                , and the{' '}
+                <Link href="/privacy" className="text-blue-600 hover:underline">
+                  Privacy Policy
+                </Link>{' '}
+                for my account.
+              </label>
+              {errors.agreement && (
+                <p className="text-sm text-red-600 mt-1">{errors.agreement.message}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 text-base"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Creating your account...' : 'Start My Free Trial Now'}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+};
