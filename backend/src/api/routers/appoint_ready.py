@@ -16,12 +16,16 @@ from src.api.schemas.appoint_ready_schemas import (
     AppointmentContextResponse,
     CareGapsResponse,
     RiskAssessmentResponse,
+    TestResultsResponse,
+    MedicationReviewResponse,
     CareGap,
     RiskScore
 )
 from src.api.services.appoint_ready.context_builder import context_builder
 from src.api.services.appoint_ready.care_gap_detector import care_gap_detector
 from src.api.services.appoint_ready.risk_calculator import risk_calculator
+from src.api.services.appoint_ready.test_results_analyzer import TestResultsAnalyzer
+from src.api.services.appoint_ready.medication_interaction_checker import MedicationInteractionChecker
 
 import logging
 
@@ -290,6 +294,166 @@ async def get_risk_assessment(
         )
 
 
+@router.get("/test-results/{patient_id}", response_model=TestResultsResponse)
+async def get_test_results(
+    patient_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get and analyze relevant test results for a patient.
+
+    Highlights:
+    - Abnormal lab values compared to reference ranges
+    - Critical results requiring immediate attention
+    - Trends over time for repeated tests
+    - Categorized by test type (hematology, chemistry, etc.)
+
+    **Requires:** Provider role
+
+    **Example Response:**
+    ```json
+    {
+        "patient_id": "2b7ed7f3-c480-49ba-ad9c-07073e6ca46a",
+        "results": [
+            {
+                "test_name": "Hemoglobin A1c",
+                "value": "8.2",
+                "unit": "%",
+                "reference_range": "4.0-6.0",
+                "status": "abnormal_high",
+                "date": "2025-11-01T08:00:00Z",
+                "category": "chemistry",
+                "trend": "up"
+            }
+        ],
+        "abnormal_count": 1,
+        "critical_count": 0,
+        "last_updated": "2025-11-02T10:30:00Z"
+    }
+    ```
+    """
+    logger.info(f"Test results requested for patient {patient_id}")
+
+    # Verify patient exists
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Patient not found: {patient_id}"
+        )
+
+    # Role check
+    if current_user.role not in ["doctor", "nurse", "admin", "staff"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only healthcare providers can access test results"
+        )
+
+    try:
+        # Analyze test results
+        analyzer = TestResultsAnalyzer(db)
+        results = analyzer.get_relevant_test_results(patient_id)
+
+        logger.info(f"Found {len(results.get('results', []))} test results for patient {patient_id}")
+        return TestResultsResponse(**results)
+
+    except Exception as e:
+        logger.error(f"Error analyzing test results: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to analyze test results"
+        )
+
+
+@router.get("/medication-review/{patient_id}", response_model=MedicationReviewResponse)
+async def get_medication_review(
+    patient_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Perform comprehensive medication review including interaction checking.
+
+    Features:
+    - Active medication list
+    - Drug-drug interaction detection
+    - Interaction severity levels (severe/moderate/mild)
+    - Clinical recommendations
+    - Drug allergy alerts
+
+    **Requires:** Provider role
+
+    **Example Response:**
+    ```json
+    {
+        "patient_id": "2b7ed7f3-c480-49ba-ad9c-07073e6ca46a",
+        "medications": [
+            {
+                "medication_id": "med-123",
+                "name": "Warfarin",
+                "dosage": "5mg",
+                "frequency": "Once daily",
+                "route": "Oral",
+                "status": "active"
+            }
+        ],
+        "interactions": [
+            {
+                "interaction_id": "1",
+                "medication_1": "Warfarin",
+                "medication_2": "Aspirin",
+                "severity": "severe",
+                "description": "Increased risk of bleeding",
+                "recommendation": "Monitor INR closely"
+            }
+        ],
+        "allergies": [
+            {
+                "allergen": "Penicillin",
+                "reaction": "Rash, hives",
+                "severity": "moderate"
+            }
+        ],
+        "total_medications": 1,
+        "interaction_count": 1,
+        "severe_interaction_count": 1
+    }
+    ```
+    """
+    logger.info(f"Medication review requested for patient {patient_id}")
+
+    # Verify patient exists
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Patient not found: {patient_id}"
+        )
+
+    # Role check
+    if current_user.role not in ["doctor", "nurse", "admin", "staff"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only healthcare providers can access medication reviews"
+        )
+
+    try:
+        # Perform medication review
+        checker = MedicationInteractionChecker(db)
+        review = checker.get_medication_review(patient_id)
+
+        logger.info(f"Medication review completed for patient {patient_id}: {review['total_medications']} meds, {review['interaction_count']} interactions")
+        return MedicationReviewResponse(**review)
+
+    except Exception as e:
+        logger.error(f"Error performing medication review: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to perform medication review"
+        )
+
+
 @router.get("/health")
 async def appoint_ready_health_check():
     """
@@ -302,6 +466,8 @@ async def appoint_ready_health_check():
         "services": {
             "context_builder": "operational",
             "care_gap_detector": "operational",
-            "risk_calculator": "operational"
+            "risk_calculator": "operational",
+            "test_results_analyzer": "operational",
+            "medication_interaction_checker": "operational"
         }
     }

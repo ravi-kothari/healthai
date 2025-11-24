@@ -84,6 +84,18 @@ class TokenResponse(BaseModel):
         }
 
 
+class TenantInfo(BaseModel):
+    """Schema for tenant information in responses."""
+
+    id: str
+    name: str
+    slug: str
+    subscription_plan: str
+
+    class Config:
+        from_attributes = True
+
+
 class UserResponse(BaseModel):
     """Schema for user response."""
 
@@ -95,6 +107,8 @@ class UserResponse(BaseModel):
     role: str
     is_active: bool
     is_verified: bool
+    tenant_id: Optional[str] = None
+    tenant: Optional[TenantInfo] = None
 
     class Config:
         from_attributes = True
@@ -107,7 +121,14 @@ class UserResponse(BaseModel):
                 "phone": "+1-555-0123",
                 "role": "patient",
                 "is_active": True,
-                "is_verified": False
+                "is_verified": False,
+                "tenant_id": "defa0000-0000-0000-0000-000000000001",
+                "tenant": {
+                    "id": "defa0000-0000-0000-0000-000000000001",
+                    "name": "Default Organization",
+                    "slug": "default",
+                    "subscription_plan": "professional"
+                }
             }
         }
 
@@ -132,7 +153,14 @@ class AuthResponse(BaseModel):
                     "phone": "+1-555-0123",
                     "role": "patient",
                     "is_active": True,
-                    "is_verified": False
+                    "is_verified": False,
+                    "tenant_id": "defa0000-0000-0000-0000-000000000001",
+                    "tenant": {
+                        "id": "defa0000-0000-0000-0000-000000000001",
+                        "name": "Default Organization",
+                        "slug": "default",
+                        "subscription_plan": "professional"
+                    }
                 },
                 "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                 "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",

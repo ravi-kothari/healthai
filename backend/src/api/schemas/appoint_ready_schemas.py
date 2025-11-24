@@ -263,3 +263,135 @@ class RiskAssessmentResponse(BaseModel):
                 "overall_risk_level": "moderate"
             }
         }
+
+
+class TestResult(BaseModel):
+    """Individual test result."""
+
+    test_name: str = Field(..., description="Name of the test")
+    value: str = Field(..., description="Test value")
+    unit: str = Field(..., description="Unit of measurement")
+    reference_range: str = Field(..., description="Normal reference range")
+    status: str = Field(..., description="Result status (normal/abnormal_high/abnormal_low/critical)")
+    date: Optional[str] = Field(None, description="Date of test")
+    category: str = Field(..., description="Test category (hematology, chemistry, etc.)")
+    trend: Optional[str] = Field(None, description="Trend indicator (up/down/stable)")
+
+
+class TestResultsResponse(BaseModel):
+    """Test results analysis response."""
+
+    patient_id: str
+    results: List[TestResult]
+    abnormal_count: int = Field(..., description="Number of abnormal results")
+    critical_count: int = Field(..., description="Number of critical results")
+    last_updated: str = Field(..., description="Timestamp of last update")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "patient_id": "2b7ed7f3-c480-49ba-ad9c-07073e6ca46a",
+                "results": [
+                    {
+                        "test_name": "Hemoglobin A1c",
+                        "value": "8.2",
+                        "unit": "%",
+                        "reference_range": "4.0-6.0",
+                        "status": "abnormal_high",
+                        "date": "2025-11-01T08:00:00Z",
+                        "category": "chemistry",
+                        "trend": "up"
+                    }
+                ],
+                "abnormal_count": 1,
+                "critical_count": 0,
+                "last_updated": "2025-11-02T10:30:00Z"
+            }
+        }
+
+
+class DrugInteraction(BaseModel):
+    """Drug-drug interaction."""
+
+    interaction_id: str
+    medication_1: str
+    medication_2: str
+    severity: str = Field(..., description="Interaction severity (severe/moderate/mild)")
+    description: str = Field(..., description="Interaction description")
+    clinical_effect: str = Field(..., description="Clinical effect of interaction")
+    recommendation: str = Field(..., description="Clinical recommendation")
+
+
+class MedicationItem(BaseModel):
+    """Medication item."""
+
+    medication_id: str
+    name: str
+    dosage: str
+    frequency: str
+    route: str
+    start_date: Optional[str] = None
+    status: str = Field(..., description="Medication status (active/on_hold/completed)")
+    prescriber: Optional[str] = None
+    indication: Optional[str] = None
+
+
+class AllergyItem(BaseModel):
+    """Allergy item."""
+
+    allergen: str
+    reaction: str
+    severity: str = Field(..., description="Allergy severity (severe/moderate/mild)")
+
+
+class MedicationReviewResponse(BaseModel):
+    """Medication review response."""
+
+    patient_id: str
+    medications: List[MedicationItem]
+    interactions: List[DrugInteraction]
+    allergies: List[AllergyItem]
+    total_medications: int
+    interaction_count: int
+    severe_interaction_count: int
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "patient_id": "2b7ed7f3-c480-49ba-ad9c-07073e6ca46a",
+                "medications": [
+                    {
+                        "medication_id": "med-123",
+                        "name": "Warfarin",
+                        "dosage": "5mg",
+                        "frequency": "Once daily",
+                        "route": "Oral",
+                        "start_date": "2025-01-15",
+                        "status": "active",
+                        "prescriber": "Dr. Smith",
+                        "indication": "Atrial fibrillation"
+                    }
+                ],
+                "interactions": [
+                    {
+                        "interaction_id": "1",
+                        "medication_1": "Warfarin",
+                        "medication_2": "Aspirin",
+                        "severity": "severe",
+                        "description": "Increased risk of bleeding",
+                        "clinical_effect": "Both medications affect blood clotting",
+                        "recommendation": "Monitor INR closely. Watch for bleeding signs."
+                    }
+                ],
+                "allergies": [
+                    {
+                        "allergen": "Penicillin",
+                        "reaction": "Rash, hives",
+                        "severity": "moderate"
+                    }
+                ],
+                "total_medications": 1,
+                "interaction_count": 1,
+                "severe_interaction_count": 1
+            }
+        }

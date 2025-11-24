@@ -49,6 +49,7 @@ class VisitResponse(BaseModel):
     id: UUID4
     patient_id: UUID4
     provider_id: UUID4
+    appointment_id: Optional[UUID4] = None
     visit_type: VisitType
     status: VisitStatus
 

@@ -1,9 +1,12 @@
 """
 User model for authentication and authorization.
 Supports both patients and healthcare providers.
+
+Multi-tenant: Users belong to a tenant (organization).
+Super admins have no tenant_id and can access all tenants.
 """
 
-from sqlalchemy import Column, String, Boolean, Enum as SQLEnum
+from sqlalchemy import Column, String, Boolean, Enum as SQLEnum, ForeignKey
 from sqlalchemy.orm import relationship
 from enum import Enum
 
@@ -17,8 +20,9 @@ class UserRole(str, Enum):
     PATIENT = "patient"
     DOCTOR = "doctor"
     NURSE = "nurse"
-    ADMIN = "admin"
+    ADMIN = "admin"  # Tenant admin
     STAFF = "staff"
+    SUPER_ADMIN = "super_admin"  # Platform admin (no tenant)
 
 
 class User(Base, UUIDMixin, TimestampMixin):
@@ -55,7 +59,12 @@ class User(Base, UUIDMixin, TimestampMixin):
     is_active = Column(Boolean, default=True, nullable=False)
     is_verified = Column(Boolean, default=False, nullable=False)
 
+    # Multi-tenant: Users belong to a tenant (organization)
+    # Super admins have no tenant_id and can access all tenants
+    tenant_id = Column(String(36), ForeignKey("tenants.id"), nullable=True, index=True)
+
     # Relationships
+    tenant = relationship("Tenant", back_populates="users")
     # patient relationship will be added when creating Patient model
     provider_visits = relationship("Visit", back_populates="provider", foreign_keys="Visit.provider_id")
     templates = relationship("Template", back_populates="user", foreign_keys="Template.user_id")
@@ -74,6 +83,21 @@ class User(Base, UUIDMixin, TimestampMixin):
             "role": self.role.value,
             "is_active": self.is_active,
             "is_verified": self.is_verified,
+            "tenant_id": self.tenant_id,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
+
+    def is_super_admin(self) -> bool:
+        """Check if user is a platform super admin."""
+        return self.role == UserRole.SUPER_ADMIN
+
+    def is_tenant_admin(self) -> bool:
+        """Check if user is a tenant admin."""
+        return self.role == UserRole.ADMIN
+
+    def can_access_tenant(self, tenant_id: str) -> bool:
+        """Check if user can access a specific tenant."""
+        if self.is_super_admin():
+            return True
+        return self.tenant_id == tenant_id

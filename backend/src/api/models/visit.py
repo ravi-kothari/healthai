@@ -50,6 +50,7 @@ class Visit(Base):
     # Patient and Provider
     patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
     provider_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
+    appointment_id = Column(String(36), ForeignKey("appointments.id"), nullable=True, index=True)
 
     # Visit Details
     visit_type = Column(SQLEnum(VisitType), nullable=False, default=VisitType.ROUTINE)
@@ -91,6 +92,7 @@ class Visit(Base):
     # Relationships
     patient = relationship("Patient", back_populates="visits")
     provider = relationship("User", back_populates="provider_visits")
+    appointment = relationship("Appointment")
     transcripts = relationship("Transcript", back_populates="visit", cascade="all, delete-orphan")
 
     def __repr__(self):

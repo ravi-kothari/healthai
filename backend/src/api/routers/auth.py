@@ -1,5 +1,6 @@
 """
 Authentication router with login, register, and token management endpoints.
+Includes multi-tenant support with tenant_id in JWT tokens.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -9,7 +10,8 @@ from datetime import timedelta
 import logging
 
 from src.api.database import get_db
-from src.api.models.user import User
+from src.api.models.user import User, UserRole
+from src.api.models.tenant import Tenant, TenantStatus
 from src.api.schemas.auth_schemas import (
     UserRegisterRequest,
     UserLoginRequest,
@@ -17,6 +19,7 @@ from src.api.schemas.auth_schemas import (
     UserResponse,
     TokenResponse,
     RefreshTokenRequest,
+    TenantInfo,
 )
 from src.api.auth.password import hash_password, verify_password
 from src.api.auth.jwt_handler import create_access_token, create_refresh_token, verify_token
@@ -27,6 +30,62 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
+# Default tenant ID for development
+DEFAULT_TENANT_ID = "defa0000-0000-0000-0000-000000000001"
+
+
+def _build_user_response(user: User, db: Session) -> UserResponse:
+    """Build UserResponse with tenant information."""
+    tenant_info = None
+    if user.tenant_id:
+        tenant = db.query(Tenant).filter(Tenant.id == user.tenant_id).first()
+        if tenant:
+            # subscription_plan is now stored as string, not enum
+            plan = tenant.subscription_plan if isinstance(tenant.subscription_plan, str) else (
+                tenant.subscription_plan.value if hasattr(tenant.subscription_plan, 'value') else "trial"
+            )
+            tenant_info = TenantInfo(
+                id=tenant.id,
+                name=tenant.name,
+                slug=tenant.slug,
+                subscription_plan=plan
+            )
+
+    return UserResponse(
+        id=user.id,
+        email=user.email,
+        username=user.username,
+        full_name=user.full_name,
+        phone=user.phone,
+        role=user.role.value if hasattr(user.role, 'value') else str(user.role),
+        is_active=user.is_active,
+        is_verified=user.is_verified,
+        tenant_id=user.tenant_id,
+        tenant=tenant_info
+    )
+
+
+def _create_tokens_with_tenant(user: User) -> tuple[str, str]:
+    """Create access and refresh tokens with tenant context."""
+    token_data = {
+        "sub": user.id,
+        "email": user.email,
+        "role": user.role.value if hasattr(user.role, 'value') else str(user.role),
+    }
+
+    # Include tenant_id for non-super-admin users
+    if user.tenant_id:
+        token_data["tenant_id"] = user.tenant_id
+
+    # Mark super admins in token
+    if user.role == UserRole.SUPER_ADMIN:
+        token_data["is_super_admin"] = True
+
+    access_token = create_access_token(data=token_data)
+    refresh_token = create_refresh_token(data={"sub": user.id, "tenant_id": user.tenant_id})
+
+    return access_token, refresh_token
+
 
 @router.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 async def register(
@@ -35,6 +94,11 @@ async def register(
 ):
     """
     Register a new user.
+
+    For multi-tenant support:
+    - Regular users are assigned to the default tenant during public registration
+    - Tenant-specific registration should use the tenant invitation flow
+    - Super admins have no tenant_id
 
     Args:
         user_data: User registration data
@@ -66,7 +130,15 @@ async def register(
             detail="Email already registered"
         )
 
-    # Create new user
+    # Get the default tenant (for development/public registration)
+    default_tenant = db.query(Tenant).filter(Tenant.id == DEFAULT_TENANT_ID).first()
+    if not default_tenant:
+        logger.warning("Default tenant not found, creating user without tenant")
+        tenant_id = None
+    else:
+        tenant_id = default_tenant.id
+
+    # Create new user with tenant
     try:
         new_user = User(
             email=user_data.email,
@@ -75,6 +147,7 @@ async def register(
             full_name=user_data.full_name,
             phone=user_data.phone,
             role=user_data.role,
+            tenant_id=tenant_id,  # Assign to default tenant
             is_active=True,
             is_verified=False  # Email verification would be implemented separately
         )
@@ -83,18 +156,13 @@ async def register(
         db.commit()
         db.refresh(new_user)
 
-        logger.info(f"User registered successfully: {new_user.id}")
+        logger.info(f"User registered successfully: {new_user.id} in tenant: {tenant_id}")
 
-        # Create tokens
-        access_token = create_access_token(
-            data={"sub": new_user.id, "email": new_user.email, "role": new_user.role.value}
-        )
-        refresh_token = create_refresh_token(
-            data={"sub": new_user.id}
-        )
+        # Create tokens with tenant context
+        access_token, refresh_token = _create_tokens_with_tenant(new_user)
 
         return AuthResponse(
-            user=UserResponse.model_validate(new_user),
+            user=_build_user_response(new_user, db),
             access_token=access_token,
             refresh_token=refresh_token,
             token_type="bearer",
@@ -118,6 +186,11 @@ async def login(
     """
     Login with username/email and password.
 
+    Multi-tenant features:
+    - JWT token includes tenant_id for data isolation
+    - Validates tenant status (suspended tenants block login)
+    - Super admins can login without tenant context
+
     Args:
         credentials: Login credentials
         db: Database session
@@ -126,7 +199,7 @@ async def login(
         AuthResponse: User data with access tokens
 
     Raises:
-        HTTPException: If credentials are invalid
+        HTTPException: If credentials are invalid or tenant is suspended
     """
     logger.info(f"Login attempt for username: {credentials.username}")
 
@@ -160,18 +233,30 @@ async def login(
             detail="User account is inactive"
         )
 
-    logger.info(f"User logged in successfully: {user.id}")
+    # Check tenant status (skip for super admins)
+    if user.tenant_id and user.role != UserRole.SUPER_ADMIN:
+        tenant = db.query(Tenant).filter(Tenant.id == user.tenant_id).first()
+        if tenant:
+            if tenant.status == TenantStatus.SUSPENDED.value:
+                logger.warning(f"Login failed: tenant suspended for {credentials.username}")
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Your organization's account has been suspended. Please contact support."
+                )
+            if not tenant.is_active:
+                logger.warning(f"Login failed: tenant inactive for {credentials.username}")
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Your organization's account is inactive. Please contact support."
+                )
 
-    # Create tokens
-    access_token = create_access_token(
-        data={"sub": user.id, "email": user.email, "role": user.role.value}
-    )
-    refresh_token = create_refresh_token(
-        data={"sub": user.id}
-    )
+    logger.info(f"User logged in successfully: {user.id} (tenant: {user.tenant_id})")
+
+    # Create tokens with tenant context
+    access_token, refresh_token = _create_tokens_with_tenant(user)
 
     return AuthResponse(
-        user=UserResponse.model_validate(user),
+        user=_build_user_response(user, db),
         access_token=access_token,
         refresh_token=refresh_token,
         token_type="bearer",
@@ -187,6 +272,10 @@ async def refresh_access_token(
     """
     Refresh access token using refresh token.
 
+    Multi-tenant features:
+    - Re-validates tenant status on refresh
+    - Creates new token with current tenant_id
+
     Args:
         refresh_data: Refresh token
         db: Database session
@@ -195,7 +284,7 @@ async def refresh_access_token(
         TokenResponse: New access token
 
     Raises:
-        HTTPException: If refresh token is invalid
+        HTTPException: If refresh token is invalid or tenant suspended
     """
     # Verify refresh token
     payload = verify_token(refresh_data.refresh_token)
@@ -216,10 +305,17 @@ async def refresh_access_token(
             detail="User not found or inactive"
         )
 
-    # Create new access token
-    access_token = create_access_token(
-        data={"sub": user.id, "email": user.email, "role": user.role.value}
-    )
+    # Re-check tenant status on refresh
+    if user.tenant_id and user.role != UserRole.SUPER_ADMIN:
+        tenant = db.query(Tenant).filter(Tenant.id == user.tenant_id).first()
+        if tenant and (tenant.status == TenantStatus.SUSPENDED.value or not tenant.is_active):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Your organization's account has been suspended or deactivated."
+            )
+
+    # Create new access token with tenant context
+    access_token, _ = _create_tokens_with_tenant(user)
 
     return TokenResponse(
         access_token=access_token,
@@ -230,18 +326,20 @@ async def refresh_access_token(
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """
-    Get current authenticated user information.
+    Get current authenticated user information with tenant details.
 
     Args:
         current_user: Current authenticated user
+        db: Database session
 
     Returns:
-        UserResponse: User information
+        UserResponse: User information with tenant details
     """
-    return UserResponse.model_validate(current_user)
+    return _build_user_response(current_user, db)
 
 
 @router.post("/logout")

@@ -32,6 +32,41 @@ logger = logging.getLogger(__name__)
 
 # ==================== Visit Endpoints ====================
 
+@router.post("/from-appointment/{appointment_id}", response_model=VisitResponse, status_code=status.HTTP_201_CREATED)
+async def create_visit_from_appointment(
+    appointment_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Create a new visit from an appointment with CarePrep data auto-populated.
+
+    Only providers (doctor, nurse, admin, staff) can create visits.
+    Automatically populates Subjective section with CarePrep symptom and medical history data.
+    """
+    # Check if user is a provider
+    if current_user.role not in ["doctor", "nurse", "admin", "staff"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only providers can create visits"
+        )
+
+    try:
+        visit = await visit_service.create_visit_from_appointment(
+            db=db,
+            appointment_id=appointment_id,
+            provider_id=current_user.id
+        )
+
+        return visit
+
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error creating visit from appointment: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
 @router.post("", response_model=VisitResponse, status_code=status.HTTP_201_CREATED)
 async def create_visit(
     visit_data: VisitCreate,

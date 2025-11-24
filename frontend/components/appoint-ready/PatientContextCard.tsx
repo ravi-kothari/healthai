@@ -68,7 +68,7 @@ export default function PatientContextCard({ patientId }: PatientContextProps) {
 
     try {
       const data = await apiClient.getAppointmentContext(patientId, {
-        include_fhir: false,
+        include_fhir: true,
         include_previsit: true,
       });
       setContext(data);
@@ -218,7 +218,7 @@ export default function PatientContextCard({ patientId }: PatientContextProps) {
               <div>
                 <p className="text-sm font-medium text-gray-600">Triage Level</p>
                 <div className="flex items-center gap-2">
-                  <Badge variant={previsit.triage_level <= 2 ? 'destructive' : 'warning'}>
+                  <Badge variant={previsit.triage_level <= 2 ? 'danger' : 'warning'}>
                     Level {previsit.triage_level}
                   </Badge>
                   {previsit.urgency && (

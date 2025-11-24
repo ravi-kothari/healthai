@@ -9,8 +9,8 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentUser } from "@/lib/auth/middleware";
-import type { Appointment, PreVisitTask, SecureMessage } from "@/lib/types/dashboard";
-import { Calendar, CheckSquare, Mail, Plus, FileText, ArrowRight, ClipboardCheck, Sparkles } from "lucide-react";
+import type { Appointment, SecureMessage } from "@/lib/types/dashboard";
+import { Calendar, CheckSquare, Mail, ClipboardCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 // Mock Data Fetching
@@ -24,11 +24,8 @@ async function getPatientDashboardData(patientId: string) {
     type: "Virtual",
   };
 
-  const preVisitTasks: PreVisitTask[] = [
-    { id: "task-1", text: "Update medical history", completed: true, link: "/patient/previsit/history", order: 1 },
-    { id: "task-2", text: "Complete symptom checker", completed: false, link: "/patient/previsit/symptoms", order: 2 },
-    { id: "task-3", text: "Verify insurance information", completed: false, link: "/patient/previsit/insurance", order: 3 },
-  ];
+  // Note: PreVisit tasks are now handled via CarePrep links sent by providers
+  // No need for hardcoded tasks in patient dashboard
 
   const recentMessages: SecureMessage[] = [
     { id: "msg-1", from: "Dr. Smith's Office", subject: "Your recent lab results", snippet: "Your results for the lipid panel are now available...", timestamp: "2 days ago", read: false },
@@ -49,14 +46,7 @@ export default async function PatientDashboardPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user.name.split(' ')[0]}!</h1>
-          <p className="text-gray-600 mt-1">Here's a summary of your health portal.</p>
-        </div>
-        <div className="flex gap-2 shrink-0">
-          <Link href="/dashboard">
-            <Button variant="outline" className="text-xs">📊 SaaS Dashboard</Button>
-          </Link>
-          <Button variant="outline"><FileText className="w-4 h-4 mr-2" /> View Records</Button>
-          <Button><Plus className="w-4 h-4 mr-2" /> Schedule</Button>
+          <p className="text-gray-600 mt-1">Prepare for your upcoming appointment.</p>
         </div>
       </div>
 
@@ -143,65 +133,38 @@ export default async function PatientDashboardPage() {
             </CardFooter>
           </Card>
 
-          <Card>
+          <Card className="bg-blue-50 border-blue-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <CheckSquare className="w-5 h-5 text-green-600" />
-                Pre-Visit Checklist
+                <CheckSquare className="w-5 h-5 text-blue-600" />
+                CarePrep
               </CardTitle>
-              <CardDescription>Tasks to complete before your visit with {upcomingAppointment.providerName}.</CardDescription>
+              <CardDescription>Prepare for your upcoming appointment</CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3">
-                {preVisitTasks.map((task, index) => {
-                  // Check if previous task is completed (for sequential workflow)
-                  const previousTask = index > 0 ? preVisitTasks[index - 1] : null;
-                  const isLocked = previousTask && !previousTask.completed;
-                  const canInteract = task.completed || !isLocked;
-
-                  return (
-                    <li key={task.id} className={`flex items-center justify-between p-3 border rounded-lg transition-colors ${canInteract ? 'hover:bg-gray-50' : 'bg-gray-50'}`}>
-                      <div className="flex items-center flex-1">
-                        <span className="text-gray-400 font-semibold text-sm mr-3 w-5">{task.order}.</span>
-                        <input
-                          type="checkbox"
-                          checked={task.completed}
-                          readOnly
-                          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className={`ml-3 ${task.completed ? 'text-gray-700' : 'text-gray-900 font-medium'}`}>
-                          {task.text}
-                        </span>
-                      </div>
-                      <div className="relative group">
-                        {task.completed ? (
-                          <Link href={task.link}>
-                            <Button variant="outline" size="sm">
-                              View / Edit
-                            </Button>
-                          </Link>
-                        ) : isLocked ? (
-                          <>
-                            <Button variant="secondary" size="sm" disabled className="cursor-not-allowed opacity-50">
-                              Start <ArrowRight className="w-4 h-4 ml-1" />
-                            </Button>
-                            <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
-                              Please complete "{previousTask.text}" to unlock this step.
-                              <div className="absolute top-full right-4 -mt-1 border-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                          </>
-                        ) : (
-                          <Link href={task.link}>
-                            <Button variant="secondary" size="sm">
-                              Start <ArrowRight className="w-4 h-4 ml-1" />
-                            </Button>
-                          </Link>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
+              <p className="text-sm text-blue-900 mb-4">
+                Your healthcare provider will send you a CarePrep link via email or text message before your appointment.
+                This link allows you to:
+              </p>
+              <ul className="space-y-2 text-sm text-blue-800 mb-4">
+                <li className="flex items-center gap-2">
+                  <CheckSquare className="w-4 h-4 text-green-600" />
+                  Update your medical history and current medications
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckSquare className="w-4 h-4 text-green-600" />
+                  Report any symptoms you're experiencing
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckSquare className="w-4 h-4 text-green-600" />
+                  Help your provider prepare for your visit
+                </li>
               </ul>
+              <div className="p-3 bg-white rounded-lg border border-blue-200">
+                <p className="text-xs text-blue-800">
+                  <strong>Note:</strong> You don't need to log in - the CarePrep link works directly from your email or text message.
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>

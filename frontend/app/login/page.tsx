@@ -20,11 +20,17 @@ export default function LoginPage() {
       // Normalize role: both "doctor" and "provider" should be treated as provider
       const normalizedRole = (user.role === 'doctor' || user.role === 'provider') ? 'provider' : user.role;
 
-      // Set cookie for middleware
-      document.cookie = `auth_token=${normalizedRole === 'provider' ? 'provider_token' : 'patient_token'}; path=/; max-age=86400`;
+      // Set cookie for middleware role detection (provider/patient routing)
+      // Note: The actual JWT token is already set in auth_token by the API client
+      const roleToken = normalizedRole === 'provider' ? 'provider_token' :
+                        normalizedRole === 'patient' ? 'patient_token' :
+                        `${user.role}_token`;
+      document.cookie = `auth_token=${roleToken}; path=/; max-age=86400`;
 
-      // Redirect based on normalized role
-      if (normalizedRole === 'provider') {
+      // Redirect based on role
+      if (user.role === 'admin') {
+        router.push('/admin');
+      } else if (normalizedRole === 'provider') {
         router.push('/provider/dashboard');
       } else if (normalizedRole === 'patient') {
         router.push('/patient/dashboard');

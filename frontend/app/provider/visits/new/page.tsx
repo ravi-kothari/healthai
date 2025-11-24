@@ -14,7 +14,7 @@ interface Patient {
   first_name: string;
   last_name: string;
   date_of_birth: string;
-  email: string;
+  mrn: string;
 }
 
 export default function NewVisitPage() {
@@ -47,15 +47,21 @@ export default function NewVisitPage() {
   const loadPatients = async () => {
     try {
       const response = await apiClient.getPatients(1, 100);
-      setPatients(response.data);
+      // Ensure we always set an array
+      const patientsData = Array.isArray(response?.data) ? response.data :
+                           Array.isArray(response) ? response : [];
+      setPatients(patientsData);
     } catch (error: any) {
+      console.error('Failed to load patients:', error);
       toast.error('Failed to load patients');
+      setPatients([]); // Reset to empty array on error
     }
   };
 
-  const filteredPatients = patients.filter((patient) => {
+  const filteredPatients = (patients || []).filter((patient) => {
     const fullName = `${patient.first_name} ${patient.last_name}`.toLowerCase();
-    return fullName.includes(searchTerm.toLowerCase()) || patient.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const mrn = patient.mrn?.toLowerCase() || '';
+    return fullName.includes(searchTerm.toLowerCase()) || mrn.includes(searchTerm.toLowerCase());
   });
 
   const handlePatientSelect = (patient: Patient) => {
@@ -150,7 +156,7 @@ export default function NewVisitPage() {
                     setSelectedPatient(null);
                   }}
                   onFocus={() => setShowPatientList(true)}
-                  placeholder="Search by name or email..."
+                  placeholder="Search by name or MRN..."
                   className="w-full"
                 />
 
@@ -165,7 +171,7 @@ export default function NewVisitPage() {
                         <div className="font-medium text-gray-900">
                           {patient.first_name} {patient.last_name}
                         </div>
-                        <div className="text-sm text-gray-600">{patient.email}</div>
+                        <div className="text-sm text-gray-600">MRN: {patient.mrn}</div>
                         <div className="text-xs text-gray-500">
                           DOB: {new Date(patient.date_of_birth).toLocaleDateString()}
                         </div>
@@ -181,7 +187,7 @@ export default function NewVisitPage() {
                         <div className="font-medium text-gray-900">
                           {selectedPatient.first_name} {selectedPatient.last_name}
                         </div>
-                        <div className="text-sm text-gray-600">{selectedPatient.email}</div>
+                        <div className="text-sm text-gray-600">MRN: {selectedPatient.mrn}</div>
                       </div>
                       <button
                         type="button"

@@ -1,16 +1,27 @@
 """
 Authentication dependencies for FastAPI endpoints.
-Provides current user extraction from JWT tokens.
+Provides current user extraction from JWT tokens with multi-tenant support.
+
+Security Features:
+- JWT token verification with tenant context
+- Row-Level Security (RLS) tenant context setting
+- Role-based access control
+- Tenant isolation enforcement
 """
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from typing import Optional
+import logging
 
 from src.api.database import get_db
 from src.api.models.user import User, UserRole
+from src.api.models.tenant import Tenant, TenantStatus
 from src.api.auth.jwt_handler import verify_token
+
+logger = logging.getLogger(__name__)
 
 # HTTP Bearer token security scheme
 security = HTTPBearer()
@@ -21,17 +32,23 @@ async def get_current_user(
     db: Session = Depends(get_db)
 ) -> User:
     """
-    Get the current authenticated user from JWT token.
+    Get the current authenticated user from JWT token and set tenant context.
+
+    Multi-tenant security:
+    - Extracts tenant_id from JWT token
+    - Sets PostgreSQL session variable for Row-Level Security
+    - Validates tenant is active and not suspended
+    - Super admins bypass tenant restrictions
 
     Args:
         credentials: HTTP Bearer credentials
         db: Database session
 
     Returns:
-        User: Authenticated user object
+        User: Authenticated user object with tenant context set
 
     Raises:
-        HTTPException: If token is invalid or user not found
+        HTTPException: If token is invalid, user not found, or tenant suspended
 
     Example:
         @app.get("/me")
@@ -39,9 +56,15 @@ async def get_current_user(
             return current_user.to_dict()
     """
     token = credentials.credentials
+    logger.debug(f"Authenticating token (first 50 chars): {token[:50]}...")
 
     # Verify token and extract payload
-    payload = verify_token(token)
+    try:
+        payload = verify_token(token)
+        logger.debug(f"Token verified for user: {payload.get('sub')}")
+    except Exception as e:
+        logger.error(f"Token verification failed: {str(e)}")
+        raise
 
     # Get user_id from token
     user_id: str = payload.get("sub")
@@ -52,7 +75,11 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Fetch user from database
+    # Get tenant_id from token
+    token_tenant_id: Optional[str] = payload.get("tenant_id")
+    is_super_admin: bool = payload.get("is_super_admin", False)
+
+    # Fetch user from database (without RLS for this query)
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
         raise HTTPException(
@@ -67,6 +94,30 @@ async def get_current_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Inactive user"
         )
+
+    # Validate and set tenant context for non-super-admin users
+    if user.tenant_id and not is_super_admin:
+        # Verify tenant exists and is active
+        tenant = db.query(Tenant).filter(Tenant.id == user.tenant_id).first()
+        if tenant:
+            if tenant.status == TenantStatus.SUSPENDED.value:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Your organization's account has been suspended"
+                )
+            if not tenant.is_active:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Your organization's account is inactive"
+                )
+
+        # Set PostgreSQL session variable for Row-Level Security
+        try:
+            db.execute(text("SET app.current_tenant = :tenant_id"), {"tenant_id": user.tenant_id})
+            logger.debug(f"Tenant context set: {user.tenant_id}")
+        except Exception as e:
+            logger.warning(f"Could not set tenant context: {e}")
+            # Continue without RLS if setting fails (may not be configured)
 
     return user
 
@@ -122,6 +173,120 @@ def require_role(*allowed_roles: UserRole):
         return current_user
 
     return role_checker
+
+
+async def require_super_admin(
+    current_user: User = Depends(get_current_user)
+) -> User:
+    """
+    Require super admin role for platform-wide administration.
+
+    Super admins can:
+    - Manage all tenants/organizations
+    - View platform-wide analytics
+    - Access billing and subscription management
+    - Suspend/activate organizations
+
+    Args:
+        current_user: Current authenticated user
+
+    Returns:
+        User: Super admin user
+
+    Raises:
+        HTTPException: If user is not a super admin
+    """
+    if current_user.role != UserRole.SUPER_ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Super admin access required"
+        )
+    return current_user
+
+
+async def require_tenant_admin(
+    current_user: User = Depends(get_current_user)
+) -> User:
+    """
+    Require tenant admin role for organization management.
+
+    Tenant admins can:
+    - Manage users within their organization
+    - View organization analytics
+    - Manage organization settings
+    - Invite new users
+
+    Args:
+        current_user: Current authenticated user
+
+    Returns:
+        User: Tenant admin user
+
+    Raises:
+        HTTPException: If user is not a tenant admin or super admin
+    """
+    if current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    return current_user
+
+
+def require_tenant_access(tenant_id: str):
+    """
+    Dependency factory to require access to a specific tenant.
+
+    Used for cross-tenant operations by super admins or same-tenant access.
+
+    Args:
+        tenant_id: The tenant ID to check access for
+
+    Returns:
+        Dependency function that validates tenant access
+
+    Example:
+        @app.get("/tenants/{tenant_id}/users")
+        async def get_tenant_users(
+            tenant_id: str,
+            user: User = Depends(require_tenant_access(tenant_id))
+        ):
+            ...
+    """
+    async def tenant_checker(current_user: User = Depends(get_current_user)) -> User:
+        # Super admins can access any tenant
+        if current_user.role == UserRole.SUPER_ADMIN:
+            return current_user
+
+        # Regular users can only access their own tenant
+        if current_user.tenant_id != tenant_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied to this organization"
+            )
+        return current_user
+
+    return tenant_checker
+
+
+async def get_current_user_with_tenant(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> tuple[User, Optional[Tenant]]:
+    """
+    Get current user along with their tenant information.
+
+    Args:
+        current_user: Current authenticated user
+        db: Database session
+
+    Returns:
+        Tuple of (User, Tenant or None)
+    """
+    tenant = None
+    if current_user.tenant_id:
+        tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
+    return current_user, tenant
 
 
 async def get_optional_user(

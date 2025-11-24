@@ -13,8 +13,8 @@ export async function middleware(request: NextRequest) {
   // Define exact public routes
   const exactPublicRoutes = ['/login', '/signup', '/'];
 
-  // Define public route prefixes (e.g., for marketing pages)
-  const publicRoutePrefixes = ['/community', '/features', '/solutions', '/pricing', '/roadmap', '/demo', '/roi', '/security', '/changelog', '/guides', '/how-it-works', '/integrations', '/partners'];
+  // Define public route prefixes (e.g., for marketing pages and CarePrep links)
+  const publicRoutePrefixes = ['/community', '/features', '/solutions', '/pricing', '/roadmap', '/demo', '/roi', '/security', '/changelog', '/guides', '/how-it-works', '/integrations', '/partners', '/careprep'];
 
   // Check if the current pathname is an exact public route or starts with a public prefix
   const isPublicRoute = exactPublicRoutes.includes(pathname) ||
@@ -51,6 +51,11 @@ export async function middleware(request: NextRequest) {
   // Allow SaaS dashboard routes (/dashboard/*) for all authenticated users
   // The SaaS dashboard is the main admin/analytics dashboard
   if (pathname.startsWith('/dashboard')) {
+    return NextResponse.next();
+  }
+
+  // Allow admin routes - role checking is done in the admin layout
+  if (pathname.startsWith('/admin')) {
     return NextResponse.next();
   }
 

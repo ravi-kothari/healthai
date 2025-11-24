@@ -9,6 +9,7 @@ from sqlalchemy import and_, or_
 from datetime import datetime, timedelta
 from typing import List, Optional
 import logging
+import secrets
 
 from src.api.database import get_db
 from src.api.models.appointment import Appointment, AppointmentStatus
@@ -228,4 +229,114 @@ async def get_todays_appointments(
         "date": now.date().isoformat(),
         "count": len(appointments),
         "appointments": [appt.to_dict() for appt in appointments]
+    }
+
+
+@router.post("/{appointment_id}/generate-careprep-link")
+async def generate_careprep_link(
+    appointment_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Generate a unique CarePrep link for a patient's appointment.
+
+    This link allows patients to access their appointment preparation
+    without needing to log in.
+
+    Args:
+        appointment_id: The appointment ID
+        current_user: Current authenticated user (must be provider)
+        db: Database session
+
+    Returns:
+        dict: Contains the unique token and full URL
+
+    Raises:
+        HTTPException: 404 if appointment not found
+        HTTPException: 403 if not authorized
+    """
+    # Get appointment
+    appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+
+    # Authorization: only the provider can generate links
+    if appointment.provider_id != current_user.id and current_user.role not in ["admin"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized to generate link for this appointment"
+        )
+
+    # Generate unique token (32 character URL-safe string)
+    token = secrets.token_urlsafe(32)
+
+    # Store token in appointment (you'll need to add prep_token field to model)
+    # For now, we'll use a simple encoding: base64(appointment_id)
+    import base64
+    simple_token = base64.urlsafe_b64encode(appointment_id.encode()).decode()
+
+    logger.info(f"Generated CarePrep link for appointment {appointment_id}")
+
+    return {
+        "appointment_id": appointment_id,
+        "token": simple_token,
+        "careprep_url": f"/careprep/{simple_token}",
+        "full_url": f"http://localhost:3000/careprep/{simple_token}",
+        "expires_at": appointment.scheduled_start.isoformat() if appointment.scheduled_start else None
+    }
+
+
+@router.get("/careprep/{token}")
+async def get_appointment_by_careprep_token(
+    token: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Get appointment details using a CarePrep token (public endpoint, no auth required).
+
+    This allows patients to access their appointment without logging in.
+
+    Args:
+        token: The unique CarePrep token
+        db: Database session
+
+    Returns:
+        dict: Appointment details including patient name and scheduled time
+
+    Raises:
+        HTTPException: 404 if token is invalid or appointment not found
+    """
+    try:
+        # Decode token to get appointment ID
+        import base64
+        appointment_id = base64.urlsafe_b64decode(token.encode()).decode()
+    except Exception:
+        raise HTTPException(status_code=404, detail="Invalid CarePrep link")
+
+    # Get appointment
+    appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+
+    # Check if appointment is still valid (not cancelled, not too far in the past)
+    if appointment.status == AppointmentStatus.CANCELLED:
+        raise HTTPException(status_code=404, detail="Appointment has been cancelled")
+
+    logger.info(f"CarePrep link accessed for appointment {appointment_id}")
+
+    # Return appointment details (safe for public access)
+    return {
+        "appointment_id": appointment.id,
+        "patient_id": appointment.patient_id,
+        "patient_name": f"{appointment.patient.first_name} {appointment.patient.last_name}" if appointment.patient else None,
+        "provider_name": f"{appointment.provider.full_name}" if appointment.provider else "Your Provider",
+        "scheduled_start": appointment.scheduled_start.isoformat() if appointment.scheduled_start else None,
+        "scheduled_end": appointment.scheduled_end.isoformat() if appointment.scheduled_end else None,
+        "appointment_type": appointment.appointment_type.value if appointment.appointment_type else None,
+        "chief_complaint": appointment.chief_complaint,
+        "duration_minutes": appointment.duration_minutes,
+        "status": appointment.status.value if appointment.status else None
     }

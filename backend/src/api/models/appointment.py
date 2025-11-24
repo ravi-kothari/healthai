@@ -102,6 +102,7 @@ class Appointment(Base, UUIDMixin, TimestampMixin):
     # Relationships
     patient = relationship("Patient", back_populates="appointments")
     provider = relationship("User", foreign_keys=[provider_id])
+    careprep_response = relationship("CarePrepResponse", back_populates="appointment", uselist=False)
 
     def __repr__(self):
         return f"<Appointment(id={self.id}, patient_id={self.patient_id}, status={self.status})>"

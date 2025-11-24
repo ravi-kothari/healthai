@@ -5,19 +5,162 @@ Handles clinical visit sessions, SOAP notes, and visit lifecycle.
 
 import logging
 from typing import Optional, Dict, Any, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 
 from src.api.models.visit import Visit, VisitStatus, VisitType
 from src.api.models.patient import Patient
 from src.api.models.user import User
+from src.api.models.appointment import Appointment
+from src.api.models.careprep import CarePrepResponse
 
 logger = logging.getLogger(__name__)
 
 
 class VisitService:
     """Service for managing clinical visits."""
+
+    async def create_visit_from_appointment(
+        self,
+        db: Session,
+        appointment_id: str,
+        provider_id: str
+    ) -> Visit:
+        """
+        Create a new visit from an appointment with CarePrep data auto-populated.
+
+        Args:
+            db: Database session
+            appointment_id: Appointment ID
+            provider_id: Provider (doctor/nurse) user ID
+
+        Returns:
+            Visit model instance with CarePrep data in subjective field
+        """
+        # Verify appointment exists
+        appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+        if not appointment:
+            raise ValueError(f"Appointment {appointment_id} not found")
+
+        # Verify patient exists
+        patient = db.query(Patient).filter(Patient.id == appointment.patient_id).first()
+        if not patient:
+            raise ValueError(f"Patient {appointment.patient_id} not found")
+
+        # Verify provider exists and has appropriate role
+        provider = db.query(User).filter(User.id == provider_id).first()
+        if not provider:
+            raise ValueError(f"Provider {provider_id} not found")
+
+        if provider.role not in ["doctor", "nurse", "admin", "staff"]:
+            raise ValueError(f"User {provider_id} is not a provider")
+
+        # Get CarePrep response data
+        careprep_response = db.query(CarePrepResponse).filter(
+            CarePrepResponse.appointment_id == appointment_id
+        ).first()
+
+        # Build subjective notes from CarePrep data
+        subjective_notes = self._build_subjective_from_careprep(appointment, careprep_response)
+
+        # Create visit
+        visit = Visit(
+            patient_id=appointment.patient_id,
+            provider_id=provider_id,
+            appointment_id=appointment_id,
+            visit_type=self._map_appointment_type_to_visit_type(appointment.appointment_type),
+            status=VisitStatus.IN_PROGRESS,
+            chief_complaint=appointment.chief_complaint,
+            reason_for_visit=appointment.notes,
+            scheduled_start=appointment.scheduled_start,
+            actual_start=datetime.now(timezone.utc),
+            subjective=subjective_notes
+        )
+
+        db.add(visit)
+        db.commit()
+        db.refresh(visit)
+
+        logger.info(f"Created visit {visit.id} from appointment {appointment_id}")
+
+        return visit
+
+    def _map_appointment_type_to_visit_type(self, appointment_type) -> VisitType:
+        """Map appointment type to visit type."""
+        mapping = {
+            "initial_consultation": VisitType.INITIAL,
+            "follow_up": VisitType.FOLLOW_UP,
+            "urgent_care": VisitType.URGENT,
+            "annual_checkup": VisitType.ROUTINE,
+            "telemedicine": VisitType.TELEHEALTH,
+        }
+        return mapping.get(appointment_type.value if hasattr(appointment_type, 'value') else appointment_type, VisitType.ROUTINE)
+
+    def _build_subjective_from_careprep(self, appointment, careprep_response: Optional[CarePrepResponse]) -> str:
+        """Build subjective notes from CarePrep data."""
+        sections = []
+
+        # Add chief complaint
+        if appointment.chief_complaint:
+            sections.append(f"Chief Complaint: {appointment.chief_complaint}\n")
+
+        if careprep_response:
+            # Add symptom checker data
+            if careprep_response.symptom_checker_data:
+                sections.append("Symptom Information (from CarePrep):")
+                symptom_data = careprep_response.symptom_checker_data
+
+                if isinstance(symptom_data, dict):
+                    if symptom_data.get('symptoms'):
+                        sections.append("\nReported Symptoms:")
+                        for symptom in symptom_data['symptoms']:
+                            if isinstance(symptom, dict):
+                                name = symptom.get('name', 'Unknown')
+                                severity = symptom.get('severity', 'N/A')
+                                duration = symptom.get('duration', 'N/A')
+                                sections.append(f"- {name} (Severity: {severity}, Duration: {duration})")
+                            else:
+                                sections.append(f"- {symptom}")
+
+                    if symptom_data.get('analysis'):
+                        sections.append(f"\nPatient-Reported Analysis: {symptom_data['analysis']}")
+
+                sections.append("")
+
+            # Add medical history data
+            if careprep_response.medical_history_data:
+                sections.append("\nMedical History Updates (from CarePrep):")
+                history_data = careprep_response.medical_history_data
+
+                if isinstance(history_data, dict):
+                    if history_data.get('medications'):
+                        sections.append("\nCurrent Medications:")
+                        for med in history_data['medications']:
+                            if isinstance(med, dict):
+                                sections.append(f"- {med.get('name', 'Unknown')} ({med.get('dosage', 'N/A')})")
+                            else:
+                                sections.append(f"- {med}")
+
+                    if history_data.get('allergies'):
+                        sections.append("\nAllergies:")
+                        for allergy in history_data['allergies']:
+                            sections.append(f"- {allergy}")
+
+                    if history_data.get('conditions'):
+                        sections.append("\nChronic Conditions:")
+                        for condition in history_data['conditions']:
+                            sections.append(f"- {condition}")
+
+                    if history_data.get('recent_changes'):
+                        sections.append(f"\nRecent Health Changes: {history_data['recent_changes']}")
+
+                sections.append("")
+
+        if not sections:
+            sections.append("Patient presents for scheduled appointment.")
+
+        return "\n".join(sections)
 
     async def create_visit(
         self,
@@ -103,7 +246,7 @@ class VisitService:
             raise ValueError(f"Visit {visit_id} is already completed")
 
         visit.status = VisitStatus.IN_PROGRESS
-        visit.actual_start = datetime.utcnow()
+        visit.actual_start = datetime.now(timezone.utc)
 
         db.commit()
         db.refresh(visit)
@@ -151,7 +294,7 @@ class VisitService:
 
         # Update visit
         visit.status = VisitStatus.COMPLETED
-        visit.actual_end = datetime.utcnow()
+        visit.actual_end = datetime.now(timezone.utc)
 
         # Calculate duration
         if visit.actual_start:

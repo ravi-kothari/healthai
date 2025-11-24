@@ -216,7 +216,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 # Import and include routers
-from src.api.routers import auth, patients, previsit, appoint_ready, visits, clinical, appointments, templates
+from src.api.routers import auth, patients, previsit, appoint_ready, visits, clinical, appointments, templates, careprep, ai_assistant, tasks, tenants
 
 app.include_router(auth.router)
 app.include_router(patients.router)
@@ -226,6 +226,10 @@ app.include_router(visits.router)
 app.include_router(clinical.router)
 app.include_router(appointments.router)
 app.include_router(templates.router)
+app.include_router(careprep.router)
+app.include_router(ai_assistant.router)
+app.include_router(tasks.router)
+app.include_router(tenants.router)
 
 
 if __name__ == "__main__":

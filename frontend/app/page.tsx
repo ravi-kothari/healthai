@@ -214,27 +214,27 @@ export default function LandingPage() {
                     className="absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 p-6 animate-fade-in"
                   >
                     <div className="space-y-3">
-                      <a href="#" className="flex items-start gap-3 p-3 rounded-lg hover:bg-cream-50 transition-colors">
+                      <Link href="/solutions/hospitals" className="flex items-start gap-3 p-3 rounded-lg hover:bg-cream-50 transition-colors">
                         <Building className="w-5 h-5 text-forest-600 mt-0.5" />
                         <div>
                           <p className="font-semibold text-slate-900">Healthcare Systems</p>
                           <p className="text-sm text-slate-600">Enterprise solutions</p>
                         </div>
-                      </a>
-                      <a href="#" className="flex items-start gap-3 p-3 rounded-lg hover:bg-cream-50 transition-colors">
+                      </Link>
+                      <Link href="/solutions/practices" className="flex items-start gap-3 p-3 rounded-lg hover:bg-cream-50 transition-colors">
                         <Users className="w-5 h-5 text-forest-600 mt-0.5" />
                         <div>
                           <p className="font-semibold text-slate-900">Private Practices</p>
                           <p className="text-sm text-slate-600">Small to medium clinics</p>
                         </div>
-                      </a>
-                      <a href="#" className="flex items-start gap-3 p-3 rounded-lg hover:bg-cream-50 transition-colors">
+                      </Link>
+                      <Link href="/solutions/loyalty" className="flex items-start gap-3 p-3 rounded-lg hover:bg-cream-50 transition-colors">
                         <Globe className="w-5 h-5 text-forest-600 mt-0.5" />
                         <div>
-                          <p className="font-semibold text-slate-900">Telehealth</p>
-                          <p className="text-sm text-slate-600">Virtual care platforms</p>
+                          <p className="font-semibold text-slate-900">Patient Loyalty</p>
+                          <p className="text-sm text-slate-600">Engagement & retention</p>
                         </div>
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 )}
@@ -262,18 +262,18 @@ export default function LandingPage() {
                     className="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-200 p-4 animate-fade-in"
                   >
                     <div className="space-y-2">
-                      <a href="#" className="block px-3 py-2 text-slate-700 hover:text-forest-600 hover:bg-cream-50 rounded-lg transition-colors">
+                      <Link href="/guides" className="block px-3 py-2 text-slate-700 hover:text-forest-600 hover:bg-cream-50 rounded-lg transition-colors">
                         Documentation
-                      </a>
-                      <a href="#" className="block px-3 py-2 text-slate-700 hover:text-forest-600 hover:bg-cream-50 rounded-lg transition-colors">
-                        Help Center
-                      </a>
-                      <a href="#" className="block px-3 py-2 text-slate-700 hover:text-forest-600 hover:bg-cream-50 rounded-lg transition-colors">
-                        Blog
-                      </a>
-                      <a href="#" className="block px-3 py-2 text-slate-700 hover:text-forest-600 hover:bg-cream-50 rounded-lg transition-colors">
-                        Case Studies
-                      </a>
+                      </Link>
+                      <Link href="/how-it-works" className="block px-3 py-2 text-slate-700 hover:text-forest-600 hover:bg-cream-50 rounded-lg transition-colors">
+                        How It Works
+                      </Link>
+                      <Link href="/changelog" className="block px-3 py-2 text-slate-700 hover:text-forest-600 hover:bg-cream-50 rounded-lg transition-colors">
+                        Changelog
+                      </Link>
+                      <Link href="/community" className="block px-3 py-2 text-slate-700 hover:text-forest-600 hover:bg-cream-50 rounded-lg transition-colors">
+                        Community
+                      </Link>
                     </div>
                   </div>
                 )}
@@ -282,12 +282,12 @@ export default function LandingPage() {
 
             {/* CTA Buttons */}
             <div className="flex items-center space-x-3">
-              <Link href="/auth/login">
+              <Link href="/login">
                 <Button variant="ghost" size="base">
                   Sign In
                 </Button>
               </Link>
-              <Link href="/auth/register">
+              <Link href="/signup">
                 <Button variant="primary" size="base" rightIcon={<ArrowRight className="w-4 h-4" />}>
                   Get Started
                 </Button>
@@ -322,14 +322,16 @@ export default function LandingPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link href="/auth/register">
+                <Link href="/signup">
                   <Button variant="primary" size="lg" rightIcon={<ChevronRight className="w-5 h-5" />}>
                     Start Free Trial
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" leftIcon={<Activity className="w-5 h-5" />}>
-                  Watch Demo
-                </Button>
+                <Link href="/demo">
+                  <Button variant="outline" size="lg" leftIcon={<Activity className="w-5 h-5" />}>
+                    Watch Demo
+                  </Button>
+                </Link>
               </div>
 
               {/* Social Proof */}
@@ -447,9 +449,11 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              <Button variant="primary" size="lg" rightIcon={<ArrowRight className="w-5 h-5" />}>
-                Try Symptom Checker
-              </Button>
+              <Link href="/patient/previsit/symptoms">
+                <Button variant="primary" size="lg" rightIcon={<ArrowRight className="w-5 h-5" />}>
+                  Try Symptom Checker
+                </Button>
+              </Link>
             </div>
 
             {/* Right Visual - Phone Mockup */}
@@ -554,9 +558,11 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              <Button variant="primary" size="lg" rightIcon={<ArrowRight className="w-5 h-5" />}>
-                See Provider Dashboard
-              </Button>
+              <Link href="/provider/dashboard">
+                <Button variant="primary" size="lg" rightIcon={<ArrowRight className="w-5 h-5" />}>
+                  See Provider Dashboard
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -729,9 +735,11 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Button variant="outline" size="lg" className="w-full">
-                  Start Free Trial
-                </Button>
+                <Link href="/signup">
+                  <Button variant="outline" size="lg" className="w-full">
+                    Start Free Trial
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
@@ -770,9 +778,11 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Button variant="primary" size="lg" className="w-full">
-                  Start Free Trial
-                </Button>
+                <Link href="/signup">
+                  <Button variant="primary" size="lg" className="w-full">
+                    Start Free Trial
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
@@ -806,9 +816,11 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Button variant="outline" size="lg" className="w-full">
-                  Contact Sales
-                </Button>
+                <Link href="/partners">
+                  <Button variant="outline" size="lg" className="w-full">
+                    Contact Sales
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </div>
@@ -948,7 +960,7 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/register">
+            <Link href="/signup">
               <Button
                 variant="outline"
                 size="xl"
@@ -958,13 +970,15 @@ export default function LandingPage() {
                 Start Free Trial
               </Button>
             </Link>
-            <Button
-              variant="outline"
-              size="xl"
-              className="border-2 border-white text-white hover:bg-white/10"
-            >
-              Schedule Demo
-            </Button>
+            <Link href="/demo">
+              <Button
+                variant="outline"
+                size="xl"
+                className="border-2 border-white text-white hover:bg-white/10"
+              >
+                Schedule Demo
+              </Button>
+            </Link>
           </div>
 
           <p className="mt-6 text-white/80 text-sm">
@@ -994,9 +1008,9 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold mb-4">Product</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="#careprep" className="hover:text-white transition-colors">CarePrep</a></li>
-                <li><a href="#contextai" className="hover:text-white transition-colors">ContextAI</a></li>
-                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
+                <li><Link href="/patient/previsit/symptoms" className="hover:text-white transition-colors">CarePrep</Link></li>
+                <li><Link href="/provider/dashboard" className="hover:text-white transition-colors">ContextAI</Link></li>
+                <li><Link href="/features/ai-assistant" className="hover:text-white transition-colors">Features</Link></li>
                 <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
               </ul>
             </div>
@@ -1005,10 +1019,10 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="#" className="hover:text-white transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
+                <li><Link href="/partners" className="hover:text-white transition-colors">Partners</Link></li>
+                <li><Link href="/integrations" className="hover:text-white transition-colors">Integrations</Link></li>
+                <li><Link href="/security" className="hover:text-white transition-colors">Security</Link></li>
+                <li><Link href="/community" className="hover:text-white transition-colors">Community</Link></li>
               </ul>
             </div>
 
@@ -1016,10 +1030,10 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold mb-4">Resources</h4>
               <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+                <li><Link href="/guides" className="hover:text-white transition-colors">Documentation</Link></li>
+                <li><Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
+                <li><Link href="/changelog" className="hover:text-white transition-colors">Changelog</Link></li>
+                <li><Link href="/roi" className="hover:text-white transition-colors">ROI Calculator</Link></li>
               </ul>
             </div>
           </div>
