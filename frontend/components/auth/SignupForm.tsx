@@ -35,10 +35,65 @@ export const SignupForm = () => {
   const hasMinLength = password.length >= 8;
 
   const onSubmit = async (data: SignupFormValues) => {
-    console.log('Form submitted:', data);
-    // Here you would typically make an API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    alert('Signup successful!');
+    try {
+      // Combine firstName and lastName into full_name
+      const fullName = `${data.firstName} ${data.lastName}`.trim();
+
+      // Generate username from email (before @ symbol)
+      const username = data.email.split('@')[0].toLowerCase();
+
+      // Prepare the request payload matching backend UserRegisterRequest schema
+      const payload = {
+        email: data.email,
+        username: username,
+        password: data.password,
+        full_name: fullName,
+        phone: data.phone,
+        role: 'provider', // Provider signup
+      };
+
+      console.log('Registering provider:', { ...payload, password: '[REDACTED]' });
+
+      // Call the backend registration API
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        // Handle API errors
+        throw new Error(result.detail || 'Registration failed');
+      }
+
+      // Registration successful
+      console.log('Registration successful:', result.user);
+
+      // Store tokens in localStorage
+      localStorage.setItem('access_token', result.access_token);
+      if (result.refresh_token) {
+        localStorage.setItem('refresh_token', result.refresh_token);
+      }
+
+      // Store user data
+      localStorage.setItem('user', JSON.stringify(result.user));
+
+      // Show success message
+      alert(`Welcome ${result.user.full_name}! Your account has been created successfully.`);
+
+      // TODO: Redirect to onboarding or dashboard
+      // For now, we'll reload to show the authenticated state
+      window.location.href = '/';
+
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert(error instanceof Error ? error.message : 'Registration failed. Please try again.');
+    }
   };
 
   return (
