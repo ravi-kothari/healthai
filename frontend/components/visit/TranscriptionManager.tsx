@@ -2,9 +2,9 @@
 
 import React, { useRef, useState } from 'react';
 import type { Transcription, TranscriptionStatus } from '@/lib/types/dashboard';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Upload, FileAudio, CheckCircle, XCircle, Loader2, Sparkles } from 'lucide-react';
 
 interface TranscriptionManagerProps {

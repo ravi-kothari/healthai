@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/stores/authStore';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import apiClient from '@/lib/api/client';
 import toast, { Toaster } from 'react-hot-toast';
 

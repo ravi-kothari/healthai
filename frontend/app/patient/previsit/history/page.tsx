@@ -1,6 +1,6 @@
 import { getCurrentUser } from "@/lib/auth/middleware";
 import MedicalHistoryForm from "@/components/previsit/MedicalHistoryForm";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, FileText } from "lucide-react";
 import Link from "next/link";
 

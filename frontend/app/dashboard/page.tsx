@@ -6,7 +6,7 @@ import StatCard from '@/components/dashboard/StatCard';
 import RevenueChart from '@/components/dashboard/RevenueChart';
 import RecentActivity from '@/components/dashboard/RecentActivity';
 import UpcomingAppointments from '@/components/dashboard/UpcomingAppointments';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { mockAppointments } from '@/lib/mock/appointments';
 
 const stats: StatCardData[] = [

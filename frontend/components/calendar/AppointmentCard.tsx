@@ -7,7 +7,7 @@ import React from 'react';
 import { Clock, User, MapPin, Video } from 'lucide-react';
 import { Appointment, getAppointmentColor, getAppointmentTypeLabel, getStatusColor } from '@/lib/types/calendar';
 import { formatTime, formatTimeRange } from '@/lib/utils/calendar';
-import { Badge } from '@/components/ui/Badge';
+import { Badge } from '@/components/ui/badge';
 
 interface AppointmentCardProps {
   appointment: Appointment;

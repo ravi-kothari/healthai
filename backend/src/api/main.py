@@ -43,7 +43,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
 # Create FastAPI application
 app = FastAPI(
     title="AI Healthcare Application API",
-    description="AI-powered healthcare platform with PreVisit.ai and Appoint-Ready features",
+    description="AI-powered healthcare platform with CarePrep and ContextAI features",
     version=settings.API_VERSION,
     docs_url="/docs" if settings.ENVIRONMENT != "production" else None,
     redoc_url="/redoc" if settings.ENVIRONMENT != "production" else None,
@@ -117,8 +117,8 @@ async def detailed_health_check():
             "fhir_server": "unknown",  # TODO: Check FHIR server
         },
         "features": {
-            "previsit_ai": settings.ENABLE_PREVISIT,
-            "appoint_ready": settings.ENABLE_APPOINT_READY,
+            "careprep": settings.ENABLE_PREVISIT,
+            "contextai": settings.ENABLE_APPOINT_READY,
             "transcription": settings.ENABLE_TRANSCRIPTION,
             "fhir_integration": settings.ENABLE_FHIR,
         },
@@ -141,11 +141,11 @@ async def app_info():
         "version": settings.API_VERSION,
         "environment": settings.ENVIRONMENT,
         "features": {
-            "previsit_ai": {
+            "careprep": {
                 "enabled": settings.ENABLE_PREVISIT,
                 "description": "Patient symptom checking and appointment preparation",
             },
-            "appoint_ready": {
+            "contextai": {
                 "enabled": settings.ENABLE_APPOINT_READY,
                 "description": "Provider-facing appointment context and care gap detection",
             },
@@ -216,20 +216,28 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 # Import and include routers
-from src.api.routers import auth, patients, previsit, appoint_ready, visits, clinical, appointments, templates, careprep, ai_assistant, tasks, tenants
+from src.api.routers import (
+    auth, patients, visits, clinical, appointments, templates,
+    ai_assistant, tasks, tenants,
+    # CarePrep + ContextAI routers
+    careprep_unified, contextai, careprep_forms
+)
 
+# Core routers
 app.include_router(auth.router)
 app.include_router(patients.router)
-app.include_router(previsit.router)
-app.include_router(appoint_ready.router)
 app.include_router(visits.router)
 app.include_router(clinical.router)
 app.include_router(appointments.router)
 app.include_router(templates.router)
-app.include_router(careprep.router)
 app.include_router(ai_assistant.router)
 app.include_router(tasks.router)
 app.include_router(tenants.router)
+
+# CarePrep/ContextAI routers
+app.include_router(careprep_unified.router)  # /api/careprep/* (AI symptom analysis)
+app.include_router(contextai.router)          # /api/contextai/* (provider context)
+app.include_router(careprep_forms.router)     # /api/careprep/forms/* (appointment forms)
 
 
 if __name__ == "__main__":

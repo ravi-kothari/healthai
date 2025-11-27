@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { X, User, Calendar, AlertTriangle, Target, Pill, FileText, Activity } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import PatientContextCard from '@/components/appoint-ready/PatientContextCard';
 import RiskStratification from '@/components/appoint-ready/RiskStratification';
 import CareGaps from '@/components/appoint-ready/CareGaps';

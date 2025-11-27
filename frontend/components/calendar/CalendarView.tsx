@@ -13,7 +13,7 @@ import {
   navigatePrevious,
   navigateNext,
 } from '@/lib/utils/calendar';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { MonthView } from './MonthView';
 import { WeekView } from './WeekView';
 import { DayView } from './DayView';

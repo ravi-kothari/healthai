@@ -9,10 +9,10 @@ import PatientContextCard from "@/components/appoint-ready/PatientContextCard";
 import RiskStratification from "@/components/appoint-ready/RiskStratification";
 import CareGaps from "@/components/appoint-ready/CareGaps";
 import MedicationReview from "@/components/appoint-ready/MedicationReview";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Bot, FileText, CheckSquare, ChevronRight, ChevronLeft, Activity, AlertTriangle, Pill, Target } from "lucide-react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/badge";
 import axios from "axios";
 import toast from 'react-hot-toast';
 

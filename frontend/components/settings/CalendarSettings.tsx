@@ -6,11 +6,11 @@
 import React, { useState } from 'react';
 import { Clock, Calendar, Settings as SettingsIcon } from 'lucide-react';
 import { CalendarSettings as CalendarSettingsType } from '@/lib/types/calendar';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Label } from '@/components/ui/Label';
-import { Select } from '@/components/ui/Select';
-import { Input } from '@/components/ui/Input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Select } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 
 const defaultSettings: CalendarSettingsType = {
   startTime: 7,

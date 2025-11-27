@@ -1,9 +1,9 @@
 'use client';
 
 import { Search, Bell, MessageSquare, Menu, TrendingUp } from 'lucide-react';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useAuthStore } from '@/lib/stores/authStore';
 
 export default function Header() {

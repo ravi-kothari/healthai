@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileAudio, FileText, Activity } from 'lucide-react';
 import AudioTranscription from './AudioTranscription';
 import SOAPNotesEditor from './SOAPNotesEditor';

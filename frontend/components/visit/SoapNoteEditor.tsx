@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import type { SOAPNote } from '@/lib/types/dashboard';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { FileText, Save, Sparkles, X } from 'lucide-react';
 
 interface SoapNoteEditorProps {

@@ -7,9 +7,9 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Calendar, Users, ListTodo, Plus, TrendingUp, Clock, FileText, Stethoscope, Edit3, Sparkles, ClipboardList, Send, Eye, AlertTriangle, Target, Activity } from "lucide-react";
 import Link from "next/link";
 import { useAuthStore } from '@/lib/stores/authStore';

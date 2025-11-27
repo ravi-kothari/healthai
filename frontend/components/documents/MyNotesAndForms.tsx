@@ -3,9 +3,9 @@
 import React, { useMemo, useState } from 'react';
 import { mockDocuments } from '@/lib/mock/documents';
 import { Document, DocumentCategory } from '@/lib/types/document';
-import { Button } from '@/components/ui/Button';
-import { Checkbox } from '@/components/ui/Checkbox';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, Copy, Trash2 } from 'lucide-react';
 
 export const MyNotesAndForms = () => {

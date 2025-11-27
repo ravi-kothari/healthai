@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { apiClient } from '@/lib/api/client';
 import toast from 'react-hot-toast';
 

@@ -20,7 +20,7 @@ import {
   AlertTriangle,
   HelpCircle,
 } from 'lucide-react';
-import { Badge } from '@/components/ui/Badge';
+import { Badge } from '@/components/ui/badge';
 
 interface NavItem {
   href: string;

@@ -2,9 +2,9 @@
 
 import { useState, useMemo } from 'react';
 import { X, Search, Sparkles, FileText, Users, Eye, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { Card, CardContent } from '@/components/ui/Card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import type { SOAPTemplate, TemplateType } from '@/lib/types/templates';
 
 interface TemplateBrowserModalProps {

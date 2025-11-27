@@ -336,10 +336,10 @@ def test_appointment(
     return appointment
 
 
-# PreVisit.ai fixtures
+# CarePrep fixtures
 @pytest.fixture
 def test_symptoms_data() -> Dict[str, Any]:
-    """Sample symptoms data for PreVisit.ai testing."""
+    """Sample symptoms data for CarePrep testing."""
     return {
         "symptoms": [
             {
@@ -412,6 +412,101 @@ def mock_fhir_patient_data():
     }
 
 
+# ContextAI fixtures
+@pytest.fixture
+def test_context_request_data(test_patient: Patient, test_appointment: Appointment) -> Dict[str, Any]:
+    """Sample context request data for ContextAI testing."""
+    return {
+        "patient_id": str(test_patient.id),
+        "appointment_id": str(test_appointment.id),
+        "include_medications": True,
+        "include_conditions": True,
+        "include_labs": True,
+        "include_care_gaps": True,
+    }
+
+
+@pytest.fixture
+def mock_fhir_medications():
+    """Mock FHIR MedicationStatement resources."""
+    return [
+        {
+            "resourceType": "MedicationStatement",
+            "id": "med-1",
+            "medicationCodeableConcept": {
+                "text": "Lisinopril 10mg"
+            },
+            "status": "active",
+        },
+        {
+            "resourceType": "MedicationStatement",
+            "id": "med-2",
+            "medicationCodeableConcept": {
+                "text": "Metformin 500mg"
+            },
+            "status": "active",
+        },
+    ]
+
+
+@pytest.fixture
+def mock_fhir_conditions():
+    """Mock FHIR Condition resources."""
+    return [
+        {
+            "resourceType": "Condition",
+            "id": "cond-1",
+            "code": {
+                "text": "Type 2 Diabetes Mellitus"
+            },
+            "clinicalStatus": {
+                "coding": [{"code": "active"}]
+            },
+        },
+        {
+            "resourceType": "Condition",
+            "id": "cond-2",
+            "code": {
+                "text": "Hypertension"
+            },
+            "clinicalStatus": {
+                "coding": [{"code": "active"}]
+            },
+        },
+    ]
+
+
+@pytest.fixture
+def mock_fhir_observations():
+    """Mock FHIR Observation resources (labs)."""
+    return [
+        {
+            "resourceType": "Observation",
+            "id": "obs-1",
+            "code": {
+                "text": "Hemoglobin A1c"
+            },
+            "valueQuantity": {
+                "value": 7.2,
+                "unit": "%"
+            },
+            "issued": "2024-10-15",
+        },
+        {
+            "resourceType": "Observation",
+            "id": "obs-2",
+            "code": {
+                "text": "Blood Pressure"
+            },
+            "component": [
+                {"valueQuantity": {"value": 140, "unit": "mmHg"}},
+                {"valueQuantity": {"value": 90, "unit": "mmHg"}},
+            ],
+            "issued": "2024-11-01",
+        },
+    ]
+
+
 # Test markers
 def pytest_configure(config):
     """Configure custom pytest markers."""
@@ -419,6 +514,6 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "integration: Integration tests (may use database, external services)")
     config.addinivalue_line("markers", "slow: Slow running tests")
     config.addinivalue_line("markers", "auth: Authentication and authorization tests")
-    config.addinivalue_line("markers", "previsit: PreVisit.ai feature tests")
-    config.addinivalue_line("markers", "appoint_ready: Appoint-Ready feature tests")
+    config.addinivalue_line("markers", "careprep: CarePrep feature tests (patient preparation)")
+    config.addinivalue_line("markers", "contextai: ContextAI feature tests (provider context)")
     config.addinivalue_line("markers", "fhir: FHIR integration tests")

@@ -1,6 +1,6 @@
 import { getCurrentUser } from "@/lib/auth/middleware";
 import SymptomChecker from "@/components/previsit/SymptomChecker";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Activity } from "lucide-react";
 import Link from "next/link";
 

@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { X, AlertTriangle, FileText, Sparkles, Save, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { Card, CardContent } from '@/components/ui/Card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { scrubPHI, validateTemplateText } from '@/lib/utils/templatePopulation';
 import type { TemplateCategory, AppointmentType } from '@/lib/types/templates';
 import toast from 'react-hot-toast';

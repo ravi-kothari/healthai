@@ -1,6 +1,6 @@
 'use client';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MyNotesAndForms } from '@/components/documents/MyNotesAndForms';
 import { TemplateLibrary } from '@/components/documents/TemplateLibrary';
 import { Video } from 'lucide-react';

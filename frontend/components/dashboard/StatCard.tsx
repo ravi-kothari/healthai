@@ -1,5 +1,5 @@
 import { StatCardData } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 
 export default function StatCard({ title, value, icon: Icon, change, changeType }: StatCardData) {

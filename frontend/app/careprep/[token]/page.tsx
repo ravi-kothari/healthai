@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, User, FileText, CheckCircle, Loader2, AlertCircle, ArrowLeft, Edit } from 'lucide-react';
 import axios from 'axios';
 import MedicalHistoryForm, { MedicalHistoryData } from '@/components/careprep/MedicalHistoryForm';

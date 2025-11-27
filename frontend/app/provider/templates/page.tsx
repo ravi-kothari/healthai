@@ -2,8 +2,8 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { Plus, FileText, Users, Sparkles, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import TemplateCard from '@/components/templates/TemplateCard';
 import FilterBar from '@/components/templates/FilterBar';
 import TemplatePreviewModal from '@/components/templates/TemplatePreviewModal';

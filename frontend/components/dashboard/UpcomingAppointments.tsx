@@ -9,8 +9,8 @@ import Link from 'next/link';
 import { Appointment } from '@/lib/types/calendar';
 import { getUpcomingAppointments, formatRelativeDate, formatTime } from '@/lib/utils/calendar';
 import { AppointmentCard } from '@/components/calendar/AppointmentCard';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface UpcomingAppointmentsProps {
   appointments: Appointment[];

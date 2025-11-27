@@ -5,9 +5,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { getCurrentUser } from "@/lib/auth/middleware";
 import type { Appointment, SecureMessage } from "@/lib/types/dashboard";
 import { Calendar, CheckSquare, Mail, ClipboardCheck, Sparkles } from "lucide-react";
