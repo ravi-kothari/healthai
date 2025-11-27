@@ -9,62 +9,122 @@
 
 ## 📊 Test Results Summary
 
-**Steps Tested:** 10
-**Issues Found:** TBD
-**Critical Issues:** 0
-**High Priority:** 0
-**Medium Priority:** 0
-**Low Priority:** 0
+**Steps Tested:** 3 of 10
+**Issues Found:** 7
+**Critical Issues:** 🔴 2 (Dropdown bug, API not connected)
+**High Priority:** 🟠 1 (Missing features)
+**Medium Priority:** 🟡 2 (Branding, Patient vs Provider confusion)
+**Low Priority:** 🟢 2 (Validation tests pending)
 
 ---
 
 ## 🐛 Issues & Findings
 
-### Issue #1: Practice Type Field Not Rendering as Dropdown
+### Issue #1: Practice Type Field Not Rendering as Dropdown - CRITICAL BUG
 
-**Severity:** 🟡 Medium
-**Status:** 🆕 New
+**Severity:** 🔴 Critical - BLOCKS SIGNUP
+**Status:** 🆕 New - Root Cause Identified
 **Component:** `/signup` - SignupForm
-**File:** `frontend/components/auth/SignupForm.tsx`
+**File:** `frontend/components/auth/SignupForm.tsx` (lines 160-171)
 
 **Description:**
-The "What best describes your practice?" field is currently showing as plain text list instead of a dropdown/select element.
+The "What best describes your practice?" field is using Radix UI Select component incorrectly, rendering as plain text list instead of a dropdown. **This BLOCKS form submission** because no value can be selected.
 
 **Current Behavior:**
 - All practice type options are displayed as plain text in a vertical list
-- Options visible:
-  - Select One
-  - Solo Practitioner
-  - Group Practice
-  - Mental Health Clinic
-  - Hospital
-  - Counseling Center
-  - Private Practice
-- No dropdown arrow/indicator
-- Looks like a text list rather than a form select element
+- Cannot click or select any option
+- Form validation error: "Invalid input: expected string, received undefined"
+- **CANNOT SUBMIT FORM** - Complete blocker
 
 **Expected Behavior:**
 - Should render as a proper dropdown/select element
 - Only "Select One" visible initially
 - Click opens dropdown with all options
-- Dropdown arrow visible on right side
+- Can select an option and submit form
 
-**Root Cause:**
-- `<Select>` component from `@/components/ui/select` may not be rendering properly
-- Possible CSS or component implementation issue
+**Root Cause Identified:**
+The code is mixing Radix UI Select component with HTML select syntax:
+
+```typescript
+// WRONG - Trying to use Radix UI Select like HTML select
+<Select
+  id="practiceType"
+  {...register('practiceType')}
+  className={`mt-1 ${errors.practiceType ? 'border-red-500' : ''}`}
+>
+  <option value="">Select One</option>
+  {practiceTypes.map((type) => (
+    <option key={type} value={type}>
+      {type}
+    </option>
+  ))}
+</Select>
+```
+
+**Issue:**
+- Radix UI `Select` is a **compound component** (needs `SelectTrigger`, `SelectContent`, `SelectItem`)
+- HTML `<option>` tags don't work with Radix UI Select
+- The component renders children as-is (plain text), not as dropdown
+
+**Fix Required - Option 1 (Use Native HTML Select):**
+```typescript
+// Replace Select import with regular select
+<select
+  id="practiceType"
+  {...register('practiceType')}
+  className={`mt-1 w-full rounded-md border border-gray-300 px-3 py-2 ${errors.practiceType ? 'border-red-500' : ''}`}
+>
+  <option value="">Select One</option>
+  {practiceTypes.map((type) => (
+    <option key={type} value={type}>
+      {type}
+    </option>
+  ))}
+</select>
+```
+
+**Fix Required - Option 2 (Use Radix UI Correctly):**
+```typescript
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+
+// Use with Controller from react-hook-form
+<Controller
+  name="practiceType"
+  control={control}
+  render={({ field }) => (
+    <Select onValueChange={field.onChange} defaultValue={field.value}>
+      <SelectTrigger className={errors.practiceType ? 'border-red-500' : ''}>
+        <SelectValue placeholder="Select One" />
+      </SelectTrigger>
+      <SelectContent>
+        {practiceTypes.map((type) => (
+          <SelectItem key={type} value={type}>
+            {type}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )}
+/>
+```
+
+**Recommendation:**
+- **Option 1 (Native select)** - Simpler, faster fix
+- **Option 2 (Radix UI)** - Consistent with design system, better styling
+
+**Priority:** 🔴 **CRITICAL** - Must fix before any signup testing can continue
 
 **Steps to Reproduce:**
 1. Navigate to `http://localhost:3000/signup`
-2. Scroll to "What best describes your practice?" field
-3. Observe that all options are displayed as plain text
+2. Try to select practice type → Nothing happens
+3. Fill all other fields and submit
+4. Error: "Invalid input: expected string, received undefined"
+5. Form cannot be submitted
 
-**Screenshots:**
-- See provided screenshot showing the issue
-
-**Fix Required:**
-- Review Select component implementation in `frontend/components/ui/select.tsx`
-- Ensure proper Radix UI Select component usage
-- Add proper styling for dropdown appearance
+**Impact:**
+- ❌ Provider signup completely broken
+- ❌ Cannot test any signup flow
+- ❌ Blocks Journey P1 testing entirely
 
 ---
 
