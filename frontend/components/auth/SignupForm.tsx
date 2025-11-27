@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select } from '@/components/ui/select';
+// Removed Radix UI Select - using native HTML select for practice type dropdown
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
@@ -157,10 +157,10 @@ export const SignupForm = () => {
             <Label htmlFor="practiceType" className="text-sm font-medium text-gray-700">
               What best describes your practice?
             </Label>
-            <Select
+            <select
               id="practiceType"
               {...register('practiceType')}
-              className={`mt-1 ${errors.practiceType ? 'border-red-500' : ''}`}
+              className={`mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.practiceType ? 'border-red-500' : ''}`}
             >
               <option value="">Select One</option>
               {practiceTypes.map((type) => (
@@ -168,7 +168,7 @@ export const SignupForm = () => {
                   {type}
                 </option>
               ))}
-            </Select>
+            </select>
             {errors.practiceType && (
               <p className="text-sm text-red-600 mt-1">{errors.practiceType.message}</p>
             )}
