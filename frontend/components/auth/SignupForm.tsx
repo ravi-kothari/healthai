@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signupSchema, SignupFormValues } from '@/lib/validators/auth';
@@ -13,8 +14,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export const SignupForm = () => {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -83,12 +86,18 @@ export const SignupForm = () => {
       // Store user data
       localStorage.setItem('user', JSON.stringify(result.user));
 
-      // Show success message
-      alert(`Welcome ${result.user.full_name}! Your account has been created successfully.`);
+      // Update auth store state
+      useAuthStore.setState({
+        user: result.user,
+        isAuthenticated: true,
+      });
 
-      // TODO: Redirect to onboarding or dashboard
-      // For now, we'll reload to show the authenticated state
-      window.location.href = '/';
+      // Show success message (brief, non-blocking)
+      console.log(`✅ Welcome ${result.user.full_name}! Redirecting to dashboard...`);
+
+      // Redirect to provider dashboard
+      // The landing page will also auto-redirect authenticated providers
+      router.push('/provider/dashboard');
 
     } catch (error) {
       console.error('Registration error:', error);

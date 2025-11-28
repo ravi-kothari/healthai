@@ -37,9 +37,15 @@ import {
 
 export default function LandingPage() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, loadUser } = useAuthStore();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
+  // Load user from localStorage on component mount
+  useEffect(() => {
+    loadUser();
+  }, [loadUser]);
+
+  // Redirect authenticated users to their dashboard
   useEffect(() => {
     if (isAuthenticated && user) {
       if (user.role === 'patient') {
