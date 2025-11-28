@@ -415,8 +415,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* PreVisit.ai Feature Section */}
-      <section id="features" className="py-20 sm:py-32 bg-white">
+      {/* PreVisit.ai Feature Section - CarePrep */}
+      <section id="careprep" className="py-20 sm:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left Content */}
@@ -490,8 +490,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Appoint-Ready Feature Section */}
-      <section className="py-20 sm:py-32 bg-cream-50">
+      {/* Appoint-Ready Feature Section - ContextAI */}
+      <section id="contextai" className="py-20 sm:py-32 bg-cream-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left Visual - Desktop Mockup */}
