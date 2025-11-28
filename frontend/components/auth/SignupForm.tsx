@@ -49,7 +49,7 @@ export const SignupForm = () => {
         password: data.password,
         full_name: fullName,
         phone: data.phone,
-        role: 'provider', // Provider signup
+        role: 'doctor', // Provider signup (doctor role)
       };
 
       console.log('Registering provider:', { ...payload, password: '[REDACTED]' });
