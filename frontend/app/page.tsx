@@ -89,22 +89,22 @@ export default function LandingPage() {
                       <div>
                         <h4 className="text-xs font-bold text-slate-500 uppercase mb-4 tracking-wide">Features</h4>
                         <div className="space-y-1">
-                          <a href="/features/transcribe" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
+                          <Link href="/features/transcribe" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
                             <FileText className="w-4 h-4 text-slate-400 group-hover/item:text-forest-600" />
                             <span className="text-slate-700 group-hover/item:text-forest-600 font-medium">Transcribe & Dictate</span>
-                          </a>
-                          <a href="/features/ai-assistant" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
+                          </Link>
+                          <Link href="/features/ai-assistant" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
                             <Sparkles className="w-4 h-4 text-slate-400 group-hover/item:text-forest-600" />
                             <span className="text-slate-700 group-hover/item:text-forest-600 font-medium">AI Assistant</span>
-                          </a>
-                          <a href="/features/context" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
+                          </Link>
+                          <Link href="/features/context" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
                             <Activity className="w-4 h-4 text-slate-400 group-hover/item:text-forest-600" />
                             <span className="text-slate-700 group-hover/item:text-forest-600 font-medium">Patient Context</span>
-                          </a>
-                          <a href="/features/tasks" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
+                          </Link>
+                          <Link href="/features/tasks" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
                             <Clipboard className="w-4 h-4 text-slate-400 group-hover/item:text-forest-600" />
                             <span className="text-slate-700 group-hover/item:text-forest-600 font-medium">Smart Tasks</span>
-                          </a>
+                          </Link>
                           <Link href="/provider/templates" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
                             <FileText className="w-4 h-4 text-slate-400 group-hover/item:text-forest-600" />
                             <span className="text-slate-700 group-hover/item:text-forest-600 font-medium">Clinical Templates</span>
@@ -113,17 +113,17 @@ export default function LandingPage() {
                             <Users className="w-4 h-4 text-slate-400 group-hover/item:text-forest-600" />
                             <span className="text-slate-700 group-hover/item:text-forest-600 font-medium">Community Templates</span>
                           </Link>
-                          <a href="/features/customization" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
+                          <Link href="/features/customization" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
                             <Zap className="w-4 h-4 text-slate-400 group-hover/item:text-forest-600" />
                             <span className="text-slate-700 group-hover/item:text-forest-600 font-medium">Customization</span>
-                          </a>
+                          </Link>
                         </div>
                       </div>
 
                       {/* Column 2: For Different Users */}
                       <div>
                         <h4 className="text-xs font-bold text-slate-500 uppercase mb-4 tracking-wide">For Clinicians</h4>
-                        <a href="#careprep" className="flex items-start gap-3 p-3 rounded-lg hover:bg-cream-50 transition-colors group/item mb-3">
+                        <Link href="#careprep" className="flex items-start gap-3 p-3 rounded-lg hover:bg-cream-50 transition-colors group/item mb-3">
                           <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                             <Brain className="w-5 h-5 text-blue-600" />
                           </div>
@@ -131,8 +131,8 @@ export default function LandingPage() {
                             <p className="font-semibold text-slate-900 group-hover/item:text-forest-600 text-sm">CarePrep</p>
                             <p className="text-xs text-slate-600">Patient preparation & symptom analysis</p>
                           </div>
-                        </a>
-                        <a href="#contextai" className="flex items-start gap-3 p-3 rounded-lg hover:bg-cream-50 transition-colors group/item mb-4">
+                        </Link>
+                        <Link href="#contextai" className="flex items-start gap-3 p-3 rounded-lg hover:bg-cream-50 transition-colors group/item mb-4">
                           <div className="w-10 h-10 bg-forest-100 rounded-lg flex items-center justify-center flex-shrink-0">
                             <Stethoscope className="w-5 h-5 text-forest-600" />
                           </div>
@@ -140,19 +140,19 @@ export default function LandingPage() {
                             <p className="font-semibold text-slate-900 group-hover/item:text-forest-600 text-sm">ContextAI</p>
                             <p className="text-xs text-slate-600">Real-time patient context & insights</p>
                           </div>
-                        </a>
+                        </Link>
 
                         <h4 className="text-xs font-bold text-slate-500 uppercase mb-3 mt-4 tracking-wide">For Organizations</h4>
                         <div className="space-y-1">
-                          <a href="/solutions/practices" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors text-xs text-slate-700 hover:text-forest-600">
+                          <Link href="/solutions/practices" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors text-xs text-slate-700 hover:text-forest-600">
                             Standardize quality
-                          </a>
-                          <a href="/solutions/hospitals" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors text-xs text-slate-700 hover:text-forest-600">
+                          </Link>
+                          <Link href="/solutions/hospitals" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors text-xs text-slate-700 hover:text-forest-600">
                             Scale efficiently
-                          </a>
-                          <a href="/solutions/loyalty" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors text-xs text-slate-700 hover:text-forest-600">
+                          </Link>
+                          <Link href="/solutions/loyalty" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors text-xs text-slate-700 hover:text-forest-600">
                             Patient loyalty
-                          </a>
+                          </Link>
                         </div>
                       </div>
 
@@ -160,38 +160,38 @@ export default function LandingPage() {
                       <div>
                         <h4 className="text-xs font-bold text-slate-500 uppercase mb-4 tracking-wide">Get Started</h4>
                         <div className="space-y-1">
-                          <a href="/how-it-works" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
+                          <Link href="/how-it-works" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
                             <Rocket className="w-4 h-4 text-slate-400 group-hover/item:text-forest-600" />
                             <span className="text-slate-700 group-hover/item:text-forest-600">How it works</span>
-                          </a>
-                          <a href="/changelog" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
+                          </Link>
+                          <Link href="/changelog" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
                             <Activity className="w-4 h-4 text-slate-400 group-hover/item:text-forest-600" />
                             <span className="text-slate-700 group-hover/item:text-forest-600">Changelog</span>
-                          </a>
-                          <a href="/guides" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
+                          </Link>
+                          <Link href="/guides" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
                             <FileText className="w-4 h-4 text-slate-400 group-hover/item:text-forest-600" />
                             <span className="text-slate-700 group-hover/item:text-forest-600">Guides</span>
-                          </a>
-                          <a href="/roi" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
+                          </Link>
+                          <Link href="/roi" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
                             <DollarSign className="w-4 h-4 text-slate-400 group-hover/item:text-forest-600" />
                             <span className="text-slate-700 group-hover/item:text-forest-600">ROI Calculator</span>
-                          </a>
+                          </Link>
                         </div>
 
                         <h4 className="text-xs font-bold text-slate-500 uppercase mb-3 mt-6 tracking-wide">Platform</h4>
                         <div className="space-y-1">
-                          <a href="/integrations" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
+                          <Link href="/integrations" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
                             <Globe className="w-4 h-4 text-slate-400 group-hover/item:text-forest-600" />
                             <span className="text-slate-700 group-hover/item:text-forest-600">Integrations</span>
-                          </a>
-                          <a href="/security" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
+                          </Link>
+                          <Link href="/security" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
                             <Lock className="w-4 h-4 text-slate-400 group-hover/item:text-forest-600" />
                             <span className="text-slate-700 group-hover/item:text-forest-600">Security & Compliance</span>
-                          </a>
-                          <a href="/partners" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
+                          </Link>
+                          <Link href="/partners" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-cream-50 transition-colors group/item text-sm">
                             <Users className="w-4 h-4 text-slate-400 group-hover/item:text-forest-600" />
                             <span className="text-slate-700 group-hover/item:text-forest-600">Partners</span>
-                          </a>
+                          </Link>
                         </div>
                       </div>
                     </div>
@@ -240,12 +240,12 @@ export default function LandingPage() {
                 )}
               </div>
 
-              <a href="#pricing" className="px-4 py-2 text-slate-600 hover:text-forest-600 transition-colors font-medium rounded-lg hover:bg-forest-50">
+              <Link href="#pricing" className="px-4 py-2 text-slate-600 hover:text-forest-600 transition-colors font-medium rounded-lg hover:bg-forest-50">
                 Pricing
-              </a>
-              <a href="#roadmap" className="px-4 py-2 text-slate-600 hover:text-forest-600 transition-colors font-medium rounded-lg hover:bg-forest-50">
+              </Link>
+              <Link href="#roadmap" className="px-4 py-2 text-slate-600 hover:text-forest-600 transition-colors font-medium rounded-lg hover:bg-forest-50">
                 Roadmap
-              </a>
+              </Link>
 
               {/* Resources Dropdown */}
               <div className="relative group">
@@ -1011,7 +1011,7 @@ export default function LandingPage() {
                 <li><Link href="/patient/previsit/symptoms" className="hover:text-white transition-colors">CarePrep</Link></li>
                 <li><Link href="/provider/dashboard" className="hover:text-white transition-colors">ContextAI</Link></li>
                 <li><Link href="/features/ai-assistant" className="hover:text-white transition-colors">Features</Link></li>
-                <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
+                <li><Link href="#pricing" className="hover:text-white transition-colors">Pricing</Link></li>
               </ul>
             </div>
 
