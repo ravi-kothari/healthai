@@ -9,6 +9,7 @@ import { apiClient } from '@/lib/api/client';
 import toast from 'react-hot-toast';
 import TemplateBrowserModal from '@/components/templates/TemplateBrowserModal';
 import SaveTemplateModal from '@/components/templates/SaveTemplateModal';
+import RecordingControls from './RecordingControls';
 import { populateTemplate, type PatientData } from '@/lib/utils/templatePopulation';
 import type { SOAPTemplate } from '@/lib/types/templates';
 
@@ -58,6 +59,8 @@ export default function SOAPNotesEditor({ visitId, initialNotes, transcriptId, o
   const [showSaveTemplateModal, setShowSaveTemplateModal] = useState(false);
   const [templates, setTemplates] = useState<SOAPTemplate[]>([]);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
+  const [currentTranscriptId, setCurrentTranscriptId] = useState<string | undefined>(transcriptId);
+  const [hasRecording, setHasRecording] = useState(false);
 
   // Fetch templates when modal opens
   useEffect(() => {
@@ -132,10 +135,16 @@ export default function SOAPNotesEditor({ visitId, initialNotes, transcriptId, o
     conditions: ['Type 2 Diabetes', 'Hypertension'],
   };
 
+  const handleTranscriptionComplete = (transcriptionId: string, transcriptionText: string) => {
+    setCurrentTranscriptId(transcriptionId);
+    setHasRecording(true);
+    toast.success('Transcription ready! You can now generate SOAP notes.');
+  };
+
   const handleGenerateSOAP = async () => {
     setIsGenerating(true);
     try {
-      const response = await apiClient.generateSOAPNotes(visitId, transcriptId);
+      const response = await apiClient.generateSOAPNotes(visitId, currentTranscriptId);
       const generatedNotes = response.soap_notes;
 
       setSOAPNotes({
@@ -365,60 +374,75 @@ export default function SOAPNotesEditor({ visitId, initialNotes, transcriptId, o
                 Generate and edit structured clinical documentation
               </CardDescription>
             </div>
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                onClick={() => setShowTemplateBrowser(true)}
-                variant="outline"
-                size="sm"
-              >
-                <FileText className="mr-2 h-4 w-4" />
-                Insert Template
-              </Button>
-              <Button
-                onClick={handleSaveAsTemplate}
-                variant="outline"
-                size="sm"
-                disabled={!soapNotes.subjective && !soapNotes.objective && !soapNotes.assessment && !soapNotes.plan}
-              >
-                <Bookmark className="mr-2 h-4 w-4" />
-                Save as Template
-              </Button>
-              <Button
-                onClick={handleGenerateSOAP}
-                disabled={isGenerating}
-                variant="outline"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Generate from Transcription
-                  </>
-                )}
-              </Button>
-              <Button
-                onClick={handleSave}
-                disabled={isSaving}
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Notes
-                  </>
-                )}
-              </Button>
-            </div>
           </div>
         </CardHeader>
+        <CardContent>
+          {/* Recording Controls - Primary Action */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 flex-wrap">
+              <RecordingControls
+                visitId={visitId}
+                onTranscriptionComplete={handleTranscriptionComplete}
+                onGenerateSOAP={handleGenerateSOAP}
+              />
+
+              {/* Secondary Actions */}
+              <div className="flex gap-2 flex-wrap ml-auto">
+                <Button
+                  onClick={() => setShowTemplateBrowser(true)}
+                  variant="outline"
+                  size="sm"
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Insert Template
+                </Button>
+                <Button
+                  onClick={handleSaveAsTemplate}
+                  variant="outline"
+                  size="sm"
+                  disabled={!soapNotes.subjective && !soapNotes.objective && !soapNotes.assessment && !soapNotes.plan}
+                >
+                  <Bookmark className="mr-2 h-4 w-4" />
+                  Save as Template
+                </Button>
+                <Button
+                  onClick={handleGenerateSOAP}
+                  disabled={isGenerating || !hasRecording}
+                  variant="outline"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Generate from Transcription
+                    </>
+                  )}
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Notes
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
       </Card>
 
       {/* SOAP Sections */}
