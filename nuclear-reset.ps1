@@ -54,7 +54,7 @@ $maxRetries = 10
 $ready = $false
 
 while (-not $ready -and $retries -lt $maxRetries) {
-    $status = docker-compose exec -T postgres pg_isready -U healthcare_user 2>$null
+    $status = docker-compose exec -T postgres pg_isready -U healthcare_user -d healthcare_db 2>$null
     if ($LASTEXITCODE -eq 0) {
         $ready = $true
         Write-Host "✅ Database is ready`n" -ForegroundColor Green
