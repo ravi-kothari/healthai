@@ -1,12 +1,19 @@
-import PlaceholderPage from '@/components/PlaceholderPage';
-import { Zap } from 'lucide-react';
+import { ComingSoon } from '@/components/layout/ComingSoon';
 
 export default function CustomizationPage() {
   return (
-    <PlaceholderPage
-      title="Customization"
-      description="Tailor the platform to your unique workflow. Custom shortcuts, templates, and integrations that work the way you do."
-      icon={Zap}
+    <ComingSoon
+      title="Custom Workflows"
+      description="Tailor MediGenie to match your unique practice. Create custom templates, shortcuts, and workflows that adapt to how you work, not the other way around."
+      estimatedLaunch="Coming Q2 2025"
+      features={[
+        "Custom note templates",
+        "Personalized keyboard shortcuts",
+        "Workflow automation rules",
+        "Practice-specific forms",
+        "Custom data fields",
+        "White-label branding options",
+      ]}
     />
   );
 }

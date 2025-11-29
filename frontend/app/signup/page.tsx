@@ -1,6 +1,7 @@
 import { SignupForm } from '@/components/auth/SignupForm';
 import Link from 'next/link';
 import Image from 'next/image';
+import { branding, getCopyright } from '@/lib/config/branding';
 
 export default function SignupPage() {
   return (
@@ -10,7 +11,7 @@ export default function SignupPage() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-600 rounded-lg" />
-            <span className="text-xl font-bold text-gray-900">simplepractice</span>
+            <span className="text-xl font-bold text-gray-900">{branding.shortName}</span>
           </Link>
           <Link
             href="/login"
@@ -38,7 +39,7 @@ export default function SignupPage() {
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 px-6 py-4">
         <div className="max-w-7xl mx-auto text-center text-sm text-gray-500">
-          <p>© 2024 SimplePractice · <Link href="/support" className="hover:text-gray-700">Support</Link> · <Link href="/terms" className="hover:text-gray-700">Licensed Content</Link></p>
+          <p>{getCopyright()} · <Link href="/support" className="hover:text-gray-700">Support</Link> · <Link href="/terms" className="hover:text-gray-700">Licensed Content</Link></p>
         </div>
       </footer>
     </div>

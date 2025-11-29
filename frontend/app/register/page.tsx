@@ -7,6 +7,7 @@ import { useAuthStore } from '@/lib/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import toast, { Toaster } from 'react-hot-toast';
+import { branding } from '@/lib/config/branding';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -87,7 +88,7 @@ export default function RegisterPage() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-gray-600 mt-2">Join AI Healthcare Platform</p>
+          <p className="text-gray-600 mt-2">Join {branding.name}</p>
         </div>
 
         {/* Register Card */}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { branding } from "@/lib/config/branding";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,8 +19,10 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Healthcare Platform",
-  description: "Intelligent healthcare with PreVisit.ai and Appoint-Ready",
+  title: branding.meta.title,
+  description: branding.meta.description,
+  keywords: branding.meta.keywords,
+  authors: [{ name: branding.meta.author }],
 };
 
 export default function RootLayout({
