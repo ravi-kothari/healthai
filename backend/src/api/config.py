@@ -45,7 +45,8 @@ class Settings(BaseSettings):
 
     # CORS Configuration
     CORS_ORIGINS: List[str] = Field(
-        default=["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:8000"]
+        default=["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:8000"],
+        env="CORS_ORIGINS"
     )
 
     # Allowed Hosts for production

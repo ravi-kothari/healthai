@@ -117,6 +117,9 @@ services:
       LOG_LEVEL: DEBUG
       ENVIRONMENT: local
       PYTHONUNBUFFERED: 1
+
+      # CORS Configuration
+      CORS_ORIGINS: '["http://localhost:3000", "http://localhost:3001"]'
     ports:
       - "8000:8000"
     volumes:
