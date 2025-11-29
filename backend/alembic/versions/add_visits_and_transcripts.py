@@ -20,9 +20,9 @@ def upgrade() -> None:
     # Create visits table
     op.create_table(
         'visits',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('patient_id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('provider_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.String(length=36), nullable=False),
+        sa.Column('patient_id', sa.String(length=36), nullable=False),
+        sa.Column('provider_id', sa.String(length=36), nullable=False),
         sa.Column('visit_type', sa.Enum('INITIAL', 'FOLLOW_UP', 'URGENT', 'ROUTINE', 'TELEHEALTH', 'IN_PERSON', name='visittype'), nullable=False),
         sa.Column('status', sa.Enum('SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'NO_SHOW', name='visitstatus'), nullable=False),
         sa.Column('scheduled_start', sa.DateTime(timezone=True), nullable=True),
@@ -55,8 +55,8 @@ def upgrade() -> None:
     # Create transcripts table
     op.create_table(
         'transcripts',
-        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column('visit_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.String(length=36), nullable=False),
+        sa.Column('visit_id', sa.String(length=36), nullable=False),
         sa.Column('audio_file_url', sa.String(length=500), nullable=True),
         sa.Column('audio_duration_seconds', sa.Integer(), nullable=True),
         sa.Column('audio_format', sa.String(length=50), nullable=True),
