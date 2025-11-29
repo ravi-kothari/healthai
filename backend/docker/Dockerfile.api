@@ -20,6 +20,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 COPY tests/ ./tests/
 
+# Copy alembic configuration for database migrations
+COPY alembic.ini .
+COPY alembic/ ./alembic/
+
 # Expose port
 EXPOSE 8000
 
