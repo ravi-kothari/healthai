@@ -7,7 +7,7 @@ Create Date: 2024-11-20 22:00:00.000000
 """
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.dialects.postgresql import JSON, ENUM
 
 
 # revision identifiers, used by Alembic.
@@ -18,37 +18,32 @@ depends_on = None
 
 
 def upgrade():
-    # Create task_category enum
-    task_category_enum = sa.Enum(
-        'follow_up', 'lab_order', 'imaging_order', 'referral',
-        'medication', 'phone_call', 'review', 'documentation', 'other',
-        name='taskcategory'
-    )
-    task_category_enum.create(op.get_bind(), checkfirst=True)
-
-    # Create task_priority enum
-    task_priority_enum = sa.Enum(
-        'low', 'medium', 'high', 'urgent',
-        name='taskpriority'
-    )
-    task_priority_enum.create(op.get_bind(), checkfirst=True)
-
-    # Create task_status enum
-    task_status_enum = sa.Enum(
-        'pending', 'in_progress', 'completed', 'cancelled',
-        name='taskstatus'
-    )
-    task_status_enum.create(op.get_bind(), checkfirst=True)
+    # Create enums using raw SQL to avoid duplicate creation issues
+    op.execute("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'taskcategory') THEN
+                CREATE TYPE taskcategory AS ENUM ('follow_up', 'lab_order', 'imaging_order', 'referral', 'medication', 'phone_call', 'review', 'documentation', 'other');
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'taskpriority') THEN
+                CREATE TYPE taskpriority AS ENUM ('low', 'medium', 'high', 'urgent');
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'taskstatus') THEN
+                CREATE TYPE taskstatus AS ENUM ('pending', 'in_progress', 'completed', 'cancelled');
+            END IF;
+        END $$;
+    """)
 
     # Create provider_tasks table
+    # Note: Using text() to reference the enum types since sa.Enum tries to recreate them
     op.create_table(
         'provider_tasks',
         sa.Column('id', sa.String(length=36), primary_key=True),
         sa.Column('title', sa.String(length=255), nullable=False),
         sa.Column('description', sa.Text, nullable=True),
-        sa.Column('category', task_category_enum, nullable=False),
-        sa.Column('priority', task_priority_enum, nullable=False),
-        sa.Column('status', task_status_enum, nullable=False),
+        sa.Column('category', ENUM(name='taskcategory', create_type=False), nullable=False),
+        sa.Column('priority', ENUM(name='taskpriority', create_type=False), nullable=False),
+        sa.Column('status', ENUM(name='taskstatus', create_type=False), nullable=False),
         sa.Column('provider_id', sa.String(length=36), nullable=False),
         sa.Column('patient_id', sa.String(length=36), nullable=True),
         sa.Column('visit_id', sa.String(length=36), nullable=True),

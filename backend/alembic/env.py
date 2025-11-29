@@ -15,8 +15,9 @@ sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..'
 from src.api.database import Base
 from src.api.config import settings
 
-# Import all models so Alembic can detect them
-from src.api.models import user, patient, appointment  # noqa
+# Import all models so Alembic can detect them (only for autogenerate)
+# Commented out during migration execution to avoid type conflicts
+# from src.api.models import user, patient, appointment, visit, clinical, template, task, tenant, careprep  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -33,7 +34,8 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-target_metadata = Base.metadata
+# Set to None for migration execution to trust the migration files
+target_metadata = None  # Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -80,7 +82,10 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            render_as_batch=True,
+            compare_type=False  # Don't compare types during migration - trust the migration file
         )
 
         with context.begin_transaction():

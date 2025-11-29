@@ -4,7 +4,6 @@ Tracks clinical visits and audio transcriptions.
 """
 
 from sqlalchemy import Column, String, DateTime, Integer, Text, Boolean, JSON, ForeignKey, Enum as SQLEnum
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid

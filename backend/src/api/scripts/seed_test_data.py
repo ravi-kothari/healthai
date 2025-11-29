@@ -42,6 +42,7 @@ def create_test_tenant(db: Session):
         id=tenant_id,
         name="Default Organization",
         slug="default",
+        email="admin@healthai.com",
         subscription_plan="professional",
         status=TenantStatus.ACTIVE.value,
         is_active=True
