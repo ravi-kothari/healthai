@@ -15,9 +15,7 @@ import {
   Upload,
   Shield,
   Stethoscope,
-  Sparkles,
 } from 'lucide-react';
-import { branding } from '@/lib/config/branding';
 
 // Onboarding steps
 const STEPS = [
@@ -48,8 +46,8 @@ const PLANS = [
     features: [
       'Up to 10 users',
       'Up to 500 patients',
-      'MediGenie Ambient (basic)',
-      'Smart clinical templates',
+      'Basic AI assistant',
+      'SOAP note templates',
       'Email support',
     ],
   },
@@ -62,9 +60,8 @@ const PLANS = [
     features: [
       'Up to 50 users',
       'Up to 5,000 patients',
-      'MediGenie Ambient (advanced)',
-      'MediGenie PreVisit',
-      'MediGenie Context',
+      'Advanced AI assistant',
+      'CarePrep & PreVisit.ai',
       'FHIR integration',
       'Priority support',
     ],
@@ -79,7 +76,7 @@ const PLANS = [
     features: [
       'Unlimited users',
       'Unlimited patients',
-      'Full MediGenie suite',
+      'Full AI capabilities',
       'Custom integrations',
       'Dedicated account manager',
       '24/7 phone support',
@@ -155,71 +152,10 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleComplete = async () => {
-    try {
-      // Submit onboarding data to API
-      console.log('Submitting onboarding data:', formData);
-
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-      const token = localStorage.getItem('access_token');
-
-      if (!token) {
-        console.error('No access token found');
-        router.push('/login');
-        return;
-      }
-
-      const response = await fetch(`${apiUrl}/api/organization/onboarding`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          organization_name: formData.organizationName,
-          organization_type: formData.organizationType,
-          npi_number: formData.npiNumber,
-          tax_id: formData.taxId,
-          phone: formData.phone,
-          email: formData.email,
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          zip_code: formData.zipCode,
-          team_invites: formData.invites.filter(i => i.email),
-          preferences: {
-            enable_ai: formData.enableAI,
-            enable_transcription: formData.enableTranscription,
-            enable_fhir: formData.enableFHIR,
-            enable_careprep: formData.enableCarePrep,
-            timezone: formData.timezone,
-          },
-          selected_plan: formData.selectedPlan,
-          billing_email: formData.billingEmail,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('Onboarding failed:', error);
-        alert('Onboarding submission failed. Please try again.');
-        return;
-      }
-
-      const result = await response.json();
-      console.log('Onboarding successful:', result);
-
-      // Mark onboarding as complete in localStorage
-      localStorage.setItem('onboarding_complete', 'true');
-
-      // Redirect to provider dashboard
-      router.push('/provider/dashboard');
-    } catch (error) {
-      console.error('Onboarding error:', error);
-      // Even if API fails, allow user to proceed
-      localStorage.setItem('onboarding_complete', 'true');
-      router.push('/provider/dashboard');
-    }
+  const handleComplete = () => {
+    // TODO: Submit onboarding data to API
+    console.log('Onboarding data:', formData);
+    router.push('/provider/dashboard');
   };
 
   const renderStepContent = () => {
@@ -444,9 +380,9 @@ export default function OnboardingPage() {
                   <div className="flex items-center gap-3">
                     <Stethoscope className="w-5 h-5 text-emerald-600" />
                     <div>
-                      <p className="font-medium text-slate-900">{branding.products.ambient}</p>
+                      <p className="font-medium text-slate-900">AI Clinical Assistant</p>
                       <p className="text-sm text-slate-500">
-                        Real-time AI scribe and clinical decision support
+                        AI-powered assistance for clinical documentation
                       </p>
                     </div>
                   </div>
@@ -462,9 +398,9 @@ export default function OnboardingPage() {
                   <div className="flex items-center gap-3">
                     <Upload className="w-5 h-5 text-blue-600" />
                     <div>
-                      <p className="font-medium text-slate-900">Medical Transcription</p>
+                      <p className="font-medium text-slate-900">Audio Transcription</p>
                       <p className="text-sm text-slate-500">
-                        Hands-free voice documentation with medical terminology
+                        Real-time transcription of patient conversations
                       </p>
                     </div>
                   </div>
@@ -480,9 +416,9 @@ export default function OnboardingPage() {
                   <div className="flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-violet-600" />
                     <div>
-                      <p className="font-medium text-slate-900">{branding.products.previsit}</p>
+                      <p className="font-medium text-slate-900">CarePrep</p>
                       <p className="text-sm text-slate-500">
-                        Patient questionnaires and appointment preparation
+                        Pre-visit preparation and patient context
                       </p>
                     </div>
                   </div>
@@ -676,10 +612,8 @@ export default function OnboardingPage() {
       <header className="bg-white border-b border-slate-200 py-4">
         <div className="container mx-auto px-6">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-slate-900">{branding.name}</span>
+            <Stethoscope className="w-8 h-8 text-emerald-600" />
+            <span className="text-xl font-bold text-slate-900">HealthcareAI</span>
           </div>
         </div>
       </header>

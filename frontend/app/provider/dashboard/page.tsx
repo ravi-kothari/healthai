@@ -122,6 +122,11 @@ export default function ProviderDashboardPage() {
             <p className="text-slate-300 mt-2">Welcome back, {user?.full_name || user?.email || 'Provider'}</p>
           </div>
           <div className="flex gap-2 shrink-0 flex-wrap">
+            <Link href="/dashboard">
+              <Button variant="ghost" size="sm" className="bg-white/10 text-white hover:bg-white/20 border border-white/20">
+                📊 SaaS
+              </Button>
+            </Link>
             <Link href="/provider/templates">
               <Button variant="ghost" size="sm" className="bg-white/10 text-white hover:bg-white/20 border border-white/20">
                 <FileText className="w-4 h-4 mr-2" /> Templates
@@ -141,40 +146,33 @@ export default function ProviderDashboardPage() {
         </div>
       </div>
 
-      {/* Stats Cards - Now Clickable */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {/* Today's Appointments */}
-        <Link href="/provider/calendar">
-          <Card className="hover:scale-105 transition-transform duration-200 cursor-pointer hover:shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <p className="text-sm text-slate-600 mb-1.5">Today's Appointments</p>
-                  <h3 className="text-3xl font-bold text-slate-900">{todaysSchedule.length}</h3>
-                  <p className="text-xs text-blue-600 flex items-center gap-1 mt-2 font-medium">
-                    <Calendar className="w-3.5 h-3.5" />
-                    View calendar
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                  <Users className="h-6 w-6 text-blue-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        {/* High Risk Patients */}
-        <Card className="hover:scale-105 transition-transform duration-200 cursor-pointer hover:shadow-lg">
+      {/* Stats Cards */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
+        <Card className="hover:scale-105 transition-transform duration-200">
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <p className="text-sm text-slate-600 mb-1.5">High Risk Patients</p>
-                <h3 className="text-3xl font-bold text-red-600">{highRiskPatients}</h3>
-                <p className="text-xs text-red-600 flex items-center gap-1 mt-2 font-medium">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  Need attention today
+                <p className="text-sm text-slate-600 mb-1.5">Patients Today</p>
+                <h3 className="text-3xl font-bold text-slate-900">{todaysSchedule.length}</h3>
+                <p className="text-xs text-green-600 flex items-center gap-1 mt-2 font-medium">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  +3 from yesterday
                 </p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:scale-105 transition-transform duration-200">
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="text-sm text-slate-600 mb-1.5">High Risk</p>
+                <h3 className="text-3xl font-bold text-red-600">{highRiskPatients}</h3>
+                <p className="text-xs text-slate-600 mt-2">Patients need attention</p>
               </div>
               <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
                 <AlertTriangle className="h-6 w-6 text-red-600" />
@@ -183,41 +181,52 @@ export default function ProviderDashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Incomplete Documentation */}
-        <Card className="hover:scale-105 transition-transform duration-200 cursor-pointer hover:shadow-lg">
+        <Card className="hover:scale-105 transition-transform duration-200">
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <p className="text-sm text-slate-600 mb-1.5">Incomplete Notes</p>
-                <h3 className="text-3xl font-bold text-slate-900">{pendingSOAPNotes}</h3>
-                <p className="text-xs text-orange-600 flex items-center gap-1 mt-2 font-medium">
-                  <FileText className="w-3.5 h-3.5" />
-                  {pendingSOAPNotes > 0 ? 'Complete documentation' : 'All caught up! ✓'}
+                <p className="text-sm text-slate-600 mb-1.5">Pending Tasks</p>
+                <h3 className="text-3xl font-bold text-slate-900">{pendingTasks.length}</h3>
+                <p className="text-xs text-slate-600 mt-2">
+                  {pendingTasks.filter(t => t.priority === 'High').length} high priority
                 </p>
               </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                <FileText className="h-6 w-6 text-orange-600" />
+              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                <ListTodo className="h-6 w-6 text-amber-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Care Gaps Identified */}
-        <Card className="hover:scale-105 transition-transform duration-200 cursor-pointer hover:shadow-lg">
+        <Card className="hover:scale-105 transition-transform duration-200">
           <CardContent className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <p className="text-sm text-slate-600 mb-1.5">Care Gaps Today</p>
+                <p className="text-sm text-slate-600 mb-1.5">Care Gaps</p>
                 <h3 className="text-3xl font-bold text-slate-900">
                   {todaysSchedule.reduce((acc, a) => acc + a.careGapsCount, 0)}
                 </h3>
-                <p className="text-xs text-purple-600 flex items-center gap-1 mt-2 font-medium">
-                  <Target className="w-3.5 h-3.5" />
-                  {todaysSchedule.filter(a => a.careGapsCount > 0).length} patients affected
-                </p>
+                <p className="text-xs text-slate-600 mt-2">Across all patients</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                 <Target className="h-6 w-6 text-purple-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:scale-105 transition-transform duration-200">
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="text-sm text-slate-600 mb-1.5">SOAP Notes</p>
+                <h3 className="text-3xl font-bold text-slate-900">{pendingSOAPNotes}</h3>
+                <p className="text-xs text-slate-600 mt-2">
+                  {pendingSOAPNotes > 0 ? 'Pending docs' : 'All complete ✓'}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                <FileText className="h-6 w-6 text-green-600" />
               </div>
             </div>
           </CardContent>

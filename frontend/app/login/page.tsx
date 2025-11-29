@@ -7,7 +7,6 @@ import { useAuthStore } from '@/lib/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import toast, { Toaster } from 'react-hot-toast';
-import { branding } from '@/lib/config/branding';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -76,8 +75,8 @@ export default function LoginPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">{branding.name}</h1>
-          <p className="text-gray-600 mt-2">{branding.tagline}</p>
+          <h1 className="text-3xl font-bold text-gray-900">AI Healthcare Platform</h1>
+          <p className="text-gray-600 mt-2">Sign in to access your account</p>
         </div>
 
         {/* Login Card */}
@@ -125,9 +124,8 @@ export default function LoginPage() {
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <p className="text-xs font-semibold text-gray-700 mb-2">Demo Credentials:</p>
             <div className="space-y-1 text-xs text-gray-600">
-              <p><span className="font-medium">Provider:</span> doctor@healthai.com / Doctor123!</p>
-              <p><span className="font-medium">Patient 1:</span> patient1@example.com / Patient123!</p>
-              <p><span className="font-medium">Patient 2:</span> patient2@example.com / Patient123!</p>
+              <p><span className="font-medium">Patient:</span> newpatient / SecurePass123!</p>
+              <p><span className="font-medium">Doctor:</span> drjane2 / SecurePass123!</p>
             </div>
           </div>
         </div>

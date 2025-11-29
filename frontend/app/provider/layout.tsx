@@ -4,9 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/stores/authStore';
-import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
-import { branding } from '@/lib/config/branding';
 
 export default function ProviderLayout({
   children,
@@ -14,13 +11,8 @@ export default function ProviderLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const [isReady, setIsReady] = useState(false);
-
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
-  };
 
   useEffect(() => {
     // Wait for hydration to complete
@@ -49,37 +41,26 @@ export default function ProviderLayout({
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
-              <Link href="/provider/dashboard" className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                {branding.name}
+              <Link href="/provider/dashboard" className="font-bold text-xl text-blue-600">
+                HealthAI Provider
               </Link>
               <nav className="hidden md:flex gap-4">
                 <Link href="/provider/dashboard" className="text-gray-600 hover:text-blue-600">
                   Dashboard
                 </Link>
-                <Link href="/provider/calendar" className="text-gray-600 hover:text-blue-600">
-                  Calendar
-                </Link>
                 <Link href="/provider/visits" className="text-gray-600 hover:text-blue-600">
-                  Patients
+                  Visits
+                </Link>
+                <Link href="/provider/visits/new" className="text-gray-600 hover:text-blue-600">
+                  New Visit
                 </Link>
                 <Link href="/provider/templates" className="text-gray-600 hover:text-blue-600">
                   Templates
                 </Link>
               </nav>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-sm text-gray-600">
-                {user?.full_name || user?.email} ({user?.role})
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLogout}
-                className="text-red-600 border-red-200 hover:bg-red-50"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
+            <div className="text-sm text-gray-600">
+              {user?.full_name || user?.email} ({user?.role})
             </div>
           </div>
         </div>

@@ -15,7 +15,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/authStore';
-import { branding } from '@/lib/config/branding';
 
 export const SignupForm = () => {
   const router = useRouter();
@@ -44,8 +43,7 @@ export const SignupForm = () => {
       const fullName = `${data.firstName} ${data.lastName}`.trim();
 
       // Generate username from email (before @ symbol)
-      // Replace dots and other special characters with underscores to meet backend validation
-      const username = data.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '_');
+      const username = data.email.split('@')[0].toLowerCase();
 
       // Prepare the request payload matching backend UserRegisterRequest schema
       const payload = {
@@ -73,19 +71,7 @@ export const SignupForm = () => {
 
       if (!response.ok) {
         // Handle API errors
-        let errorMessage = 'Registration failed';
-
-        if (result.detail) {
-          if (Array.isArray(result.detail)) {
-            // Pydantic validation errors (array of error objects)
-            errorMessage = result.detail.map((err: any) => err.msg).join(', ');
-          } else if (typeof result.detail === 'string') {
-            // Simple string error message
-            errorMessage = result.detail;
-          }
-        }
-
-        throw new Error(errorMessage);
+        throw new Error(result.detail || 'Registration failed');
       }
 
       // Registration successful
@@ -107,40 +93,22 @@ export const SignupForm = () => {
       });
 
       // Show success message (brief, non-blocking)
-      console.log(`✅ Welcome ${result.user.full_name}! Starting onboarding...`);
+      console.log(`✅ Welcome ${result.user.full_name}! Redirecting to dashboard...`);
 
-      // Redirect to onboarding wizard for new providers
-      // Check if onboarding has been completed
-      const onboardingComplete = localStorage.getItem('onboarding_complete');
-
-      if (onboardingComplete) {
-        router.push('/provider/dashboard');
-      } else {
-        router.push('/onboarding');
-      }
+      // Redirect to provider dashboard
+      // The landing page will also auto-redirect authenticated providers
+      router.push('/provider/dashboard');
 
     } catch (error) {
       console.error('Registration error:', error);
-
-      // Handle different error types
-      let errorMessage = 'Registration failed. Please try again.';
-
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      } else if (error && typeof error === 'object' && 'message' in error) {
-        errorMessage = String(error.message);
-      }
-
-      alert(errorMessage);
+      alert(error instanceof Error ? error.message : 'Registration failed. Please try again.');
     }
   };
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-lg">
       <CardHeader className="text-center space-y-2">
-        <CardTitle className="text-3xl font-bold">{branding.cta.signup}</CardTitle>
+        <CardTitle className="text-3xl font-bold">Get Started with SimplePractice</CardTitle>
         <CardDescription className="text-lg">Free for 30 days, no credit card required</CardDescription>
       </CardHeader>
       <CardContent>

@@ -1,19 +1,12 @@
-import { ComingSoon } from '@/components/layout/ComingSoon';
+import PlaceholderPage from '@/components/PlaceholderPage';
+import { FileText } from 'lucide-react';
 
 export default function ClinicalTemplatesPage() {
   return (
-    <ComingSoon
-      title="Smart Clinical Templates"
-      description="Specialty-specific SOAP note templates that learn from your documentation patterns. Get AI-powered suggestions that adapt to your practice style."
-      estimatedLaunch="Available Now in Beta"
-      features={[
-        "Specialty-specific templates (Family Med, Cardiology, Pediatrics, etc.)",
-        "AI-powered auto-completion",
-        "Custom template builder",
-        "ICD-10 and CPT code suggestions",
-        "Billing-optimized documentation",
-        "Quality measure tracking",
-      ]}
+    <PlaceholderPage
+      title="Clinical Templates"
+      description="Customizable SOAP note templates that adapt to your specialty and practice patterns. Save time with smart documentation."
+      icon={FileText}
     />
   );
 }
