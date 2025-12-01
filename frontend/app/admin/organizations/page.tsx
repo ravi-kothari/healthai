@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,131 +23,58 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import { apiClient } from '@/lib/api/client';
 
-// Mock organization data
-const organizations = [
-  {
-    id: '1',
-    name: 'Metro Health System',
-    email: 'admin@metrohealth.com',
-    phone: '+1 (555) 123-4567',
-    address: 'New York, NY',
-    plan: 'Enterprise',
-    status: 'active',
-    users: 156,
-    mrr: 2499,
-    createdAt: '2024-01-15',
-    lastActive: '2 hours ago',
-  },
-  {
-    id: '2',
-    name: 'Sunrise Medical Group',
-    email: 'contact@sunrisemedical.com',
-    phone: '+1 (555) 234-5678',
-    address: 'Los Angeles, CA',
-    plan: 'Professional',
-    status: 'active',
-    users: 42,
-    mrr: 599,
-    createdAt: '2024-02-20',
-    lastActive: '5 hours ago',
-  },
-  {
-    id: '3',
-    name: 'Valley Care Clinic',
-    email: 'info@valleycare.com',
-    phone: '+1 (555) 345-6789',
-    address: 'Phoenix, AZ',
-    plan: 'Starter',
-    status: 'trial',
-    users: 8,
-    mrr: 0,
-    createdAt: '2024-11-10',
-    lastActive: '1 day ago',
-  },
-  {
-    id: '4',
-    name: 'Northside Physicians',
-    email: 'admin@northsidephysicians.com',
-    phone: '+1 (555) 456-7890',
-    address: 'Chicago, IL',
-    plan: 'Professional',
-    status: 'active',
-    users: 28,
-    mrr: 599,
-    createdAt: '2024-03-05',
-    lastActive: '3 hours ago',
-  },
-  {
-    id: '5',
-    name: 'Community Health Partners',
-    email: 'support@communityhealth.org',
-    phone: '+1 (555) 567-8901',
-    address: 'Houston, TX',
-    plan: 'Enterprise',
-    status: 'active',
-    users: 89,
-    mrr: 2499,
-    createdAt: '2024-01-28',
-    lastActive: '30 min ago',
-  },
-  {
-    id: '6',
-    name: 'Pacific Coast Medical',
-    email: 'hello@pacificcoastmed.com',
-    phone: '+1 (555) 678-9012',
-    address: 'San Francisco, CA',
-    plan: 'Professional',
-    status: 'past_due',
-    users: 35,
-    mrr: 599,
-    createdAt: '2024-04-12',
-    lastActive: '1 week ago',
-  },
-  {
-    id: '7',
-    name: 'Mountain View Clinic',
-    email: 'office@mountainviewclinic.com',
-    phone: '+1 (555) 789-0123',
-    address: 'Denver, CO',
-    plan: 'Starter',
-    status: 'active',
-    users: 12,
-    mrr: 299,
-    createdAt: '2024-06-18',
-    lastActive: '2 days ago',
-  },
-  {
-    id: '8',
-    name: 'Atlantic Health Network',
-    email: 'info@atlantichealth.net',
-    phone: '+1 (555) 890-1234',
-    address: 'Miami, FL',
-    plan: 'Enterprise',
-    status: 'active',
-    users: 210,
-    mrr: 2499,
-    createdAt: '2023-11-22',
-    lastActive: '1 hour ago',
-  },
-];
+interface Tenant {
+  id: string;
+  name: string;
+  slug: string;
+  email: string;
+  phone?: string;
+  status: string;
+  is_active: boolean;
+  subscription_plan: string;
+  subscription_status: string;
+  max_users: int;
+  max_patients: int;
+  onboarding_completed: boolean;
+  created_at: string;
+}
 
 export default function OrganizationsPage() {
+  const [organizations, setOrganizations] = useState<Tenant[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlan, setSelectedPlan] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
 
+  useEffect(() => {
+    fetchOrganizations();
+  }, []);
+
+  const fetchOrganizations = async () => {
+    try {
+      setIsLoading(true);
+      const data = await apiClient.getTenants();
+      setOrganizations(data);
+    } catch (error) {
+      console.error('Failed to fetch organizations:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const filteredOrgs = organizations.filter((org) => {
     const matchesSearch = org.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       org.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesPlan = selectedPlan === 'all' || org.plan.toLowerCase() === selectedPlan;
+    const matchesPlan = selectedPlan === 'all' || org.subscription_plan.toLowerCase() === selectedPlan;
     const matchesStatus = selectedStatus === 'all' || org.status === selectedStatus;
     return matchesSearch && matchesPlan && matchesStatus;
   });
 
-  const totalMRR = filteredOrgs.reduce((sum, org) => sum + org.mrr, 0);
-  const totalUsers = filteredOrgs.reduce((sum, org) => sum + org.users, 0);
+  // const totalMRR = filteredOrgs.reduce((sum, org) => sum + org.mrr, 0); // MRR not available in API yet
+  const totalUsers = filteredOrgs.reduce((sum, org) => sum + org.max_users, 0); // Using max_users as proxy for capacity
 
   return (
     <div className="space-y-6">
@@ -181,7 +108,7 @@ export default function OrganizationsPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Total Users</p>
+                <p className="text-sm text-slate-600">Total Capacity</p>
                 <p className="text-2xl font-bold text-slate-900">{totalUsers.toLocaleString()}</p>
               </div>
               <div className="p-3 bg-emerald-100 rounded-xl">
@@ -194,8 +121,10 @@ export default function OrganizationsPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Monthly Revenue</p>
-                <p className="text-2xl font-bold text-slate-900">${totalMRR.toLocaleString()}</p>
+                <p className="text-sm text-slate-600">Active Subscriptions</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {organizations.filter(o => o.subscription_status === 'active').length}
+                </p>
               </div>
               <div className="p-3 bg-violet-100 rounded-xl">
                 <Building2 className="w-5 h-5 text-violet-600" />
@@ -209,7 +138,7 @@ export default function OrganizationsPage() {
               <div>
                 <p className="text-sm text-slate-600">Active Trials</p>
                 <p className="text-2xl font-bold text-slate-900">
-                  {organizations.filter(o => o.status === 'trial').length}
+                  {organizations.filter(o => o.subscription_status === 'trial').length}
                 </p>
               </div>
               <div className="p-3 bg-amber-100 rounded-xl">
@@ -257,7 +186,7 @@ export default function OrganizationsPage() {
               <option value="all">All Status</option>
               <option value="active">Active</option>
               <option value="trial">Trial</option>
-              <option value="past_due">Past Due</option>
+              <option value="suspended">Suspended</option>
             </select>
 
             {/* Export Button */}
@@ -285,13 +214,10 @@ export default function OrganizationsPage() {
                     Status
                   </th>
                   <th className="text-left px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                    Users
+                    Max Users
                   </th>
                   <th className="text-left px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                    MRR
-                  </th>
-                  <th className="text-left px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                    Last Active
+                    Created At
                   </th>
                   <th className="text-right px-6 py-4 text-xs font-semibold text-slate-600 uppercase tracking-wider">
                     Actions
@@ -299,67 +225,78 @@ export default function OrganizationsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
-                {filteredOrgs.map((org) => (
-                  <tr key={org.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold">
-                          {org.name.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-medium text-slate-900">{org.name}</p>
-                          <p className="text-sm text-slate-500">{org.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge
-                        variant={
-                          org.plan === 'Enterprise' ? 'primary' :
-                          org.plan === 'Professional' ? 'info' : 'outline'
-                        }
-                        size="sm"
-                      >
-                        {org.plan}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge
-                        variant={
-                          org.status === 'active' ? 'success' :
-                          org.status === 'trial' ? 'warning' : 'destructive'
-                        }
-                        size="sm"
-                      >
-                        {org.status === 'past_due' ? 'Past Due' : org.status}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-slate-900 font-medium">{org.users}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-slate-900 font-medium">
-                        ${org.mrr.toLocaleString()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-slate-500 text-sm">{org.lastActive}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                      Loading organizations...
                     </td>
                   </tr>
-                ))}
+                ) : filteredOrgs.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                      No organizations found.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredOrgs.map((org) => (
+                    <tr key={org.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold">
+                            {org.name.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="font-medium text-slate-900">{org.name}</p>
+                            <p className="text-sm text-slate-500">{org.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <Badge
+                          variant={
+                            org.subscription_plan === 'enterprise' ? 'primary' :
+                              org.subscription_plan === 'professional' ? 'info' : 'outline'
+                          }
+                          size="sm"
+                        >
+                          {org.subscription_plan}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4">
+                        <Badge
+                          variant={
+                            org.status === 'active' ? 'success' :
+                              org.status === 'trial' ? 'warning' : 'destructive'
+                          }
+                          size="sm"
+                        >
+                          {org.status}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-slate-900 font-medium">{org.max_users}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-slate-500 text-sm">
+                          {new Date(org.created_at).toLocaleDateString()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <button className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -377,10 +314,7 @@ export default function OrganizationsPage() {
               <Button variant="outline" size="sm" className="bg-emerald-50 border-emerald-200 text-emerald-700">
                 1
               </Button>
-              <Button variant="outline" size="sm">
-                2
-              </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" disabled>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>

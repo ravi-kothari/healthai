@@ -80,6 +80,53 @@ def create_test_provider(db: Session, tenant_id: str):
     return provider
 
 
+def create_test_admins(db: Session, tenant_id: str):
+    """Create test admin users (Tenant Admin and Super Admin)."""
+    # Tenant Admin
+    admin_email = "admin@healthai.com"
+    existing_admin = db.query(User).filter(User.email == admin_email).first()
+    if not existing_admin:
+        admin = User(
+            email=admin_email,
+            username="admin_user",
+            hashed_password=hash_password("Admin123!"),
+            full_name="Admin User",
+            phone="+1-555-0000",
+            role=UserRole.ADMIN,
+            tenant_id=tenant_id,
+            is_active=True,
+            is_verified=True
+        )
+        db.add(admin)
+        db.commit()
+        print(f"✓ Created tenant admin: {admin.email} (password: Admin123!)")
+    else:
+        print(f"✓ Tenant admin already exists: {existing_admin.email}")
+
+
+
+    # Super Admin
+    super_email = "superadmin@healthai.com"
+    existing_super = db.query(User).filter(User.email == super_email).first()
+    if not existing_super:
+        super_admin = User(
+            email=super_email,
+            username="super_admin",
+            hashed_password=hash_password("SuperAdmin123!"),
+            full_name="Super Admin",
+            phone="+1-555-9999",
+            role=UserRole.SUPER_ADMIN,
+            tenant_id=None, # Super admin has no tenant
+            is_active=True,
+            is_verified=True
+        )
+        db.add(super_admin)
+        db.commit()
+        print(f"✓ Created super admin: {super_admin.email} (password: SuperAdmin123!)")
+    else:
+        print(f"✓ Super admin already exists: {existing_super.email}")
+
+
 def create_test_patients(db: Session, tenant_id: str):
     """Create test patient users and patient records."""
     patients_data = [
@@ -275,6 +322,10 @@ def print_summary(provider: User, patients: list, appointments: list):
     print(f"  Password: Doctor123!")
     print(f"  Login URL: http://localhost:3000/login")
 
+    print(f"\n🔑 ADMIN CREDENTIALS:")
+    print(f"  Tenant Admin: admin@healthai.com / Admin123!")
+    print(f"  Super Admin: superadmin@healthai.com / SuperAdmin123!")
+
     print(f"\n👥 PATIENT CREDENTIALS:")
     for i, patient in enumerate(patients, 1):
         print(f"\n  Patient {i}: {patient.full_name}")
@@ -330,6 +381,10 @@ def main():
         # Create test provider
         print("\n2. Creating test provider...")
         provider = create_test_provider(db, tenant.id)
+
+        # Create test admins
+        print("\n2b. Creating test admins...")
+        create_test_admins(db, tenant.id)
 
         # Create test patients
         print("\n3. Creating test patients...")

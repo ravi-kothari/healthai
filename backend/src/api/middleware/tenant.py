@@ -50,16 +50,18 @@ class TenantContext:
         self._previous_tenant = current_tenant_var.get()
 
         # Set PostgreSQL session variable for RLS
-        self.db.execute(text(f"SET app.current_tenant = :tenant_id"), {"tenant_id": self.tenant_id})
+        if self.db.bind.dialect.name != "sqlite":
+            self.db.execute(text(f"SET app.current_tenant = :tenant_id"), {"tenant_id": self.tenant_id})
 
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # Reset PostgreSQL session variable
-        if self._previous_tenant:
-            self.db.execute(text(f"SET app.current_tenant = :tenant_id"), {"tenant_id": self._previous_tenant.id})
-        else:
-            self.db.execute(text("RESET app.current_tenant"))
+        if self.db.bind.dialect.name != "sqlite":
+            if self._previous_tenant:
+                self.db.execute(text(f"SET app.current_tenant = :tenant_id"), {"tenant_id": self._previous_tenant.id})
+            else:
+                self.db.execute(text("RESET app.current_tenant"))
 
         # Restore previous tenant context
         if self._previous_tenant:
@@ -83,6 +85,11 @@ def set_tenant_context(db: Session, tenant_id: str) -> None:
         set_tenant_context(db, "123e4567-e89b-12d3-a456-426614174000")
         patients = db.query(Patient).all()  # Only this tenant's patients
     """
+    # Skip for SQLite (testing)
+    if db.bind.dialect.name == "sqlite":
+        logger.debug(f"Skipping tenant context for SQLite: {tenant_id}")
+        return
+
     db.execute(text("SET app.current_tenant = :tenant_id"), {"tenant_id": tenant_id})
     logger.debug(f"Tenant context set to: {tenant_id}")
 
@@ -94,6 +101,10 @@ def reset_tenant_context(db: Session) -> None:
     Should be called when processing requests that don't require tenant context
     (e.g., super admin operations).
     """
+    # Skip for SQLite (testing)
+    if db.bind.dialect.name == "sqlite":
+        return
+
     db.execute(text("RESET app.current_tenant"))
     logger.debug("Tenant context reset")
 

@@ -17,6 +17,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
 from src.api.models.patient import Patient
+from src.api.models.careprep import CarePrepResponse
 from src.api.models.user import User
 from src.api.services.fhir.fhir_client import fhir_client
 
@@ -207,15 +208,33 @@ class AppointmentContextBuilder:
             dict: PreVisit.ai data
         """
         try:
-            # TODO: Query previsit_responses table when implemented
-            # For now, return placeholder
-            logger.info(f"PreVisit data lookup for {patient_id} (not yet implemented)")
+            # Query most recent completed response for this patient
+            response = db.query(CarePrepResponse).filter(
+                CarePrepResponse.patient_id == patient_id,
+                CarePrepResponse.all_tasks_completed == True
+            ).order_by(CarePrepResponse.completed_at.desc()).first()
+
+            if not response:
+                logger.info(f"No completed CarePrep response found for {patient_id}")
+                return {
+                    "has_responses": False,
+                    "last_response_date": None,
+                    "chief_complaint": None,
+                    "triage_level": None,
+                    "urgency": None
+                }
+
+            # Extract relevant data
+            symptom_data = response.symptom_checker_data or {}
+            analysis = symptom_data.get("analysis", {})
+            
             return {
-                "has_responses": False,
-                "last_response_date": None,
-                "chief_complaint": None,
-                "triage_level": None,
-                "urgency": None
+                "has_responses": True,
+                "last_response_date": response.completed_at.isoformat() if response.completed_at else None,
+                "chief_complaint": symptom_data.get("chief_complaint"),
+                "triage_level": analysis.get("triage_level"),
+                "urgency": analysis.get("urgency"),
+                "symptoms": symptom_data.get("symptoms", [])
             }
 
         except Exception as e:

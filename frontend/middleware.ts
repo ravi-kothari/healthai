@@ -18,10 +18,10 @@ export async function middleware(request: NextRequest) {
 
   // Check if the current pathname is an exact public route or starts with a public prefix
   const isPublicRoute = exactPublicRoutes.includes(pathname) ||
-                        publicRoutePrefixes.some(prefix => pathname.startsWith(prefix));
+    publicRoutePrefixes.some(prefix => pathname.startsWith(prefix));
 
-  // Allow public routes and API auth routes
-  if (isPublicRoute || pathname.startsWith('/api/auth')) {
+  // Allow public routes and API auth/careprep routes
+  if (isPublicRoute || pathname.startsWith('/api/auth') || pathname.startsWith('/api/careprep')) {
     return NextResponse.next();
   }
 
@@ -32,26 +32,46 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Simple role detection from token (in production, decode JWT)
-  const isProvider = token.includes('provider');
-  const isPatient = token.includes('patient');
+  // Decode token to check role
+  let userRole = '';
+  try {
+    const base64Url = token.split('.')[1];
+    if (!base64Url) throw new Error('Invalid token structure');
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = atob(base64);
+    const payload = JSON.parse(jsonPayload);
+    userRole = payload.role || '';
+  } catch (e) {
+    console.error('Error decoding token in middleware:', e);
+    // If token is invalid, redirect to login to clear state
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    const response = NextResponse.redirect(loginUrl);
+    response.cookies.delete('auth_token');
+    return response;
+  }
+
+  if (!userRole) {
+    // If no role found, treat as unauthenticated
+    const loginUrl = new URL('/login', request.url);
+    const response = NextResponse.redirect(loginUrl);
+    response.cookies.delete('auth_token');
+    return response;
+  }
+
+  const isProvider = ['doctor', 'nurse', 'admin', 'super_admin'].includes(userRole);
+  const isPatient = userRole === 'patient';
 
   // Provider route protection
   if (pathname.startsWith('/provider') && !isProvider) {
-    console.log('❌ Patient trying to access provider route:', pathname);
+    console.log('❌ Unauthorized access to provider route:', pathname, 'Role:', userRole);
     return NextResponse.redirect(new URL('/patient/dashboard', request.url));
   }
 
   // Patient route protection
   if (pathname.startsWith('/patient') && !isPatient) {
-    console.log('❌ Provider trying to access patient route:', pathname);
+    console.log('❌ Unauthorized access to patient route:', pathname, 'Role:', userRole);
     return NextResponse.redirect(new URL('/provider/dashboard', request.url));
-  }
-
-  // Allow SaaS dashboard routes (/dashboard/*) for all authenticated users
-  // The SaaS dashboard is the main admin/analytics dashboard
-  if (pathname.startsWith('/dashboard')) {
-    return NextResponse.next();
   }
 
   // Allow admin routes - role checking is done in the admin layout

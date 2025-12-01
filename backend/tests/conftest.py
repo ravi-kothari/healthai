@@ -11,20 +11,20 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 # Add src directory to Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.api.main import app
 from src.api.database import Base, get_db
-from src.api.config import Settings
+from src.api.config import Settings, settings
 from src.api.auth.jwt_handler import create_access_token
 from src.api.auth.password import hash_password
-from src.api.models.user import User
-from src.api.models.patient import Patient
-from src.api.models.appointment import Appointment, Visit
-
+from src.api.models.user import User, UserRole
+from src.api.models.patient import Patient, Gender
+from src.api.models.appointment import Appointment, AppointmentType, AppointmentStatus
+from src.api.models.tenant import Tenant, TenantStatus
 
 # Test settings override
 @pytest.fixture(scope="session")
@@ -49,12 +49,15 @@ def test_settings():
     )
 
 
-# Test database engine
+
+
+
+
 @pytest.fixture(scope="session")
 def test_engine(test_settings):
-    """Create test database engine (in-memory SQLite)."""
+    """Create test database engine."""
     engine = create_engine(
-        "sqlite:///:memory:",
+        test_settings.DATABASE_URL,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
@@ -89,6 +92,44 @@ def db_session(test_engine, TestSessionLocal) -> Generator[Session, None, None]:
         # Drop all tables after test
         Base.metadata.drop_all(bind=test_engine)
 
+# ... (skip client fixture)
+
+@pytest.fixture(scope="function")
+def test_tenant(db_session: Session) -> Tenant:
+    """Create a test tenant."""
+    tenant = Tenant(
+        name="Test Organization",
+        slug="test-org",
+        email="admin@test-org.com",
+        subscription_plan="professional",
+        status=TenantStatus.ACTIVE,
+        is_active=True
+    )
+    db_session.add(tenant)
+    db_session.commit()
+    db_session.refresh(tenant)
+    return tenant
+
+@pytest.fixture
+def test_user(db_session: Session, test_user_data: Dict[str, Any]) -> User:
+    """
+    Create a test provider user in the database.
+
+    Returns:
+        User: Created user object
+    """
+    user = User(
+        email=test_user_data["email"],
+        hashed_password=hash_password(test_user_data["password"]),
+        full_name=test_user_data["full_name"],
+        role=test_user_data["role"],
+        is_active=True,
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
 
 # Override database dependency
 @pytest.fixture(scope="function")
@@ -117,30 +158,48 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
     app.dependency_overrides.clear()
 
 
+import uuid
+
+# ... imports ...
+
+import logging
+
+# ... imports ...
+
 # Test user fixtures
-@pytest.fixture
+@pytest.fixture(scope="function")
 def test_user_data() -> Dict[str, Any]:
     """Sample user data for testing."""
+    uid = uuid.uuid4()
+    email = f"test_{uid}@example.com"
+    username = f"test_user_{uid}"
+    logging.warning(f"DEBUG: Generated test_user_data email: {email}")
     return {
-        "email": "test@example.com",
+        "email": email,
+        "username": username,
         "password": "TestPassword123!",
         "full_name": "Test User",
-        "role": "provider",
+        "role": UserRole.DOCTOR,
     }
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def test_patient_user_data() -> Dict[str, Any]:
     """Sample patient user data for testing."""
+    uid = uuid.uuid4()
+    email = f"patient_{uid}@example.com"
+    username = f"patient_user_{uid}"
+    logging.warning(f"DEBUG: Generated test_patient_user_data email: {email}")
     return {
-        "email": "patient@example.com",
+        "email": email,
+        "username": username,
         "password": "PatientPass123!",
         "full_name": "Test Patient",
-        "role": "patient",
+        "role": UserRole.PATIENT,
     }
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def test_user(db_session: Session, test_user_data: Dict[str, Any]) -> User:
     """
     Create a test provider user in the database.
@@ -148,8 +207,14 @@ def test_user(db_session: Session, test_user_data: Dict[str, Any]) -> User:
     Returns:
         User: Created user object
     """
+    # Check if user already exists
+    existing_user = db_session.query(User).filter(User.email == test_user_data["email"]).first()
+    if existing_user:
+        return existing_user
+
     user = User(
         email=test_user_data["email"],
+        username=test_user_data["username"],
         hashed_password=hash_password(test_user_data["password"]),
         full_name=test_user_data["full_name"],
         role=test_user_data["role"],
@@ -161,7 +226,7 @@ def test_user(db_session: Session, test_user_data: Dict[str, Any]) -> User:
     return user
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def test_patient_user(db_session: Session, test_patient_user_data: Dict[str, Any]) -> User:
     """
     Create a test patient user in the database.
@@ -169,8 +234,14 @@ def test_patient_user(db_session: Session, test_patient_user_data: Dict[str, Any
     Returns:
         User: Created patient user object
     """
+    # Check if user already exists
+    existing_user = db_session.query(User).filter(User.email == test_patient_user_data["email"]).first()
+    if existing_user:
+        return existing_user
+
     user = User(
         email=test_patient_user_data["email"],
+        username=test_patient_user_data["username"],
         hashed_password=hash_password(test_patient_user_data["password"]),
         full_name=test_patient_user_data["full_name"],
         role=test_patient_user_data["role"],
@@ -192,10 +263,11 @@ def auth_token(test_user: User) -> str:
         str: JWT access token
     """
     token_data = {
-        "sub": test_user.email,
+        "sub": str(test_user.id),
         "user_id": str(test_user.id),
         "role": test_user.role,
     }
+    print(f"DEBUG: auth_token using secret: {settings.JWT_SECRET}", flush=True)
     return create_access_token(token_data)
 
 
@@ -208,7 +280,7 @@ def patient_auth_token(test_patient_user: User) -> str:
         str: JWT access token
     """
     token_data = {
-        "sub": test_patient_user.email,
+        "sub": str(test_patient_user.id),
         "user_id": str(test_patient_user.id),
         "role": test_patient_user.role,
     }
@@ -242,12 +314,12 @@ def patient_auth_headers(patient_auth_token: str) -> Dict[str, str]:
 def test_patient_data() -> Dict[str, Any]:
     """Sample patient data for testing."""
     return {
+        "mrn": f"MRN-{uuid.uuid4()}",
         "first_name": "John",
         "last_name": "Doe",
-        "date_of_birth": "1980-01-15",
-        "gender": "male",
+        "date_of_birth": date(1980, 1, 15),
+        "gender": Gender.MALE,
         "email": "john.doe@example.com",
-        "phone": "+1-555-0123",
         "address": "123 Main St",
         "city": "Boston",
         "state": "MA",
@@ -258,14 +330,20 @@ def test_patient_data() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def test_patient(db_session: Session, test_patient_data: Dict[str, Any]) -> Patient:
+def test_patient(db_session: Session, test_patient_data: Dict[str, Any], test_patient_user: User) -> Patient:
     """
     Create a test patient in the database.
 
     Returns:
         Patient: Created patient object
     """
-    patient = Patient(**test_patient_data)
+    # Remove email if present as it's not in Patient model
+    patient_data = test_patient_data.copy()
+    if "email" in patient_data:
+        patient_data.pop("email")
+    
+    patient = Patient(**patient_data)
+    patient.user_id = test_patient_user.id
     db_session.add(patient)
     db_session.commit()
     db_session.refresh(patient)
@@ -283,13 +361,26 @@ def multiple_test_patients(db_session: Session) -> list[Patient]:
     patients = []
     for i in range(5):
         patient = Patient(
+            mrn=f"MRN-{i}-{uuid.uuid4()}",
             first_name=f"Patient{i}",
             last_name=f"Test{i}",
-            date_of_birth=f"198{i}-01-01",
-            gender="male" if i % 2 == 0 else "female",
-            email=f"patient{i}@test.com",
-            phone=f"+1-555-{i:04d}",
+            date_of_birth=date(1980 + i, 1, 1),
+            gender=Gender.MALE if i % 2 == 0 else Gender.FEMALE,
+            # email and phone removed as they are not in Patient model
         )
+        # Create user for patient
+        user = User(
+            email=f"patient{i}_{uuid.uuid4()}@test.com",
+            username=f"patient_user{i}_{uuid.uuid4()}",
+            hashed_password=hash_password("password"),
+            full_name=f"Patient{i} Test{i}",
+            role=UserRole.PATIENT,
+            is_active=True
+        )
+        db_session.add(user)
+        db_session.commit()
+        
+        patient.user_id = user.id
         db_session.add(patient)
         patients.append(patient)
 
@@ -307,11 +398,10 @@ def test_appointment_data(test_patient: Patient, test_user: User) -> Dict[str, A
     return {
         "patient_id": test_patient.id,
         "provider_id": test_user.id,
-        "appointment_type": "routine_checkup",
-        "scheduled_time": datetime.utcnow() + timedelta(days=7),
-        "duration_minutes": 30,
-        "status": "scheduled",
-        "reason": "Annual physical examination",
+        "appointment_type": AppointmentType.ANNUAL_CHECKUP,
+        "scheduled_start": datetime.utcnow() + timedelta(days=7),
+        "scheduled_end": datetime.utcnow() + timedelta(days=7, minutes=30),
+        "status": AppointmentStatus.SCHEDULED,
         "notes": "Patient requested morning appointment",
     }
 
@@ -329,6 +419,8 @@ def test_appointment(
     Returns:
         Appointment: Created appointment object
     """
+
+    
     appointment = Appointment(**test_appointment_data)
     db_session.add(appointment)
     db_session.commit()
@@ -397,6 +489,78 @@ def mock_openai_response():
             "Consider over-the-counter pain relief",
         ],
         "follow_up": "If symptoms persist for more than 3 days or worsen, schedule an appointment.",
+    }
+
+
+@pytest.fixture
+def mock_openai_symptom_response():
+    """Mock OpenAI response for symptom analysis."""
+    import json
+    return {
+        'content': json.dumps({
+            "urgency": "moderate",
+            "severity": "moderate",
+            "triage_level": 3,
+            "chief_complaint": "Headache and fever",
+            "summary": "Patient presents with moderate headache and mild fever. Possible viral infection.",
+            "possible_conditions": [
+                "Viral infection",
+                "Tension headache",
+                "Flu"
+            ],
+            "recommendations": [
+                "Rest and stay hydrated",
+                "Monitor temperature",
+                "Take over-the-counter pain relief if needed",
+                "Avoid strenuous activity"
+            ],
+            "red_flags": [
+                "Fever above 103°F",
+                "Severe headache",
+                "Stiff neck",
+                "Confusion"
+            ],
+            "follow_up": "If symptoms persist for more than 3 days or worsen, schedule an appointment"
+        })
+    }
+
+
+@pytest.fixture
+def mock_openai_questionnaire_response():
+    """Mock OpenAI response for questionnaire generation."""
+    import json
+    return {
+        'content': json.dumps({
+            "questions": [
+                {
+                    "id": "q1",
+                    "type": "scale",
+                    "question": "On a scale of 1-10, how severe is your headache?",
+                    "options": list(range(1, 11)),
+                    "required": True
+                },
+                {
+                    "id": "q2",
+                    "type": "select",
+                    "question": "Where is the pain located?",
+                    "options": ["Front of head", "Back of head", "Temples", "All over"],
+                    "required": True
+                },
+                {
+                    "id": "q3",
+                    "type": "multiselect",
+                    "question": "What makes your headache worse?",
+                    "options": ["Light", "Sound", "Movement", "Stress"],
+                    "required": False
+                },
+                {
+                    "id": "q4",
+                    "type": "text",
+                    "question": "Please describe any other symptoms you're experiencing",
+                    "required": False
+                }
+            ]
+        })
     }
 
 
@@ -515,5 +679,6 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "slow: Slow running tests")
     config.addinivalue_line("markers", "auth: Authentication and authorization tests")
     config.addinivalue_line("markers", "careprep: CarePrep feature tests (patient preparation)")
+    config.addinivalue_line("markers", "previsit: PreVisit feature tests")
     config.addinivalue_line("markers", "contextai: ContextAI feature tests (provider context)")
     config.addinivalue_line("markers", "fhir: FHIR integration tests")

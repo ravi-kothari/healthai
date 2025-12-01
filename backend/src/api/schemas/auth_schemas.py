@@ -2,7 +2,7 @@
 Pydantic schemas for authentication requests and responses.
 """
 
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
 from src.api.models.user import UserRole
 
@@ -17,7 +17,8 @@ class UserRegisterRequest(BaseModel):
     phone: Optional[str] = Field(None, max_length=20, description="Phone number")
     role: UserRole = Field(default=UserRole.PATIENT, description="User role")
 
-    @validator("password")
+    @field_validator("password")
+    @classmethod
     def validate_password(cls, v):
         """Validate password strength."""
         if len(v) < 8:
@@ -30,7 +31,8 @@ class UserRegisterRequest(BaseModel):
             raise ValueError("Password must contain at least one digit")
         return v
 
-    @validator("username")
+    @field_validator("username")
+    @classmethod
     def validate_username(cls, v):
         """Validate username format."""
         if not v.isalnum() and "_" not in v:
@@ -61,6 +63,19 @@ class UserLoginRequest(BaseModel):
             "example": {
                 "username": "john_doe",
                 "password": "SecurePass123"
+            }
+        }
+
+
+class UserRoleUpdateRequest(BaseModel):
+    """Schema for updating user role."""
+
+    role: UserRole = Field(..., description="New user role")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "role": "admin"
             }
         }
 

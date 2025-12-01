@@ -21,11 +21,9 @@ interface QuestionnaireTemplate {
 }
 
 interface CarePrepLink {
-  appointment_id: string;
   token: string;
-  careprep_url: string;
-  full_url: string;
-  expires_at: string | null;
+  expires_at: string;
+  url: string;
 }
 
 const templates: QuestionnaireTemplate[] = [
@@ -91,7 +89,7 @@ export default function SendCarePrepPage({ params }: { params: { patientId: stri
 
       // Generate CarePrep link via API
       const response = await axios.post(
-        `${API_URL}/api/appointments/${appointmentId}/generate-careprep-link`,
+        `${API_URL}/api/careprep/forms/send/${params.patientId}?appointment_id=${appointmentId}`,
         {},
         {
           headers: {
@@ -113,7 +111,7 @@ export default function SendCarePrepPage({ params }: { params: { patientId: stri
 
   const handleCopyLink = () => {
     if (generatedLink) {
-      navigator.clipboard.writeText(generatedLink.full_url);
+      navigator.clipboard.writeText(generatedLink.url);
       toast.success('Link copied to clipboard!');
     }
   };
@@ -155,11 +153,10 @@ export default function SendCarePrepPage({ params }: { params: { patientId: stri
               <div
                 key={template.id}
                 onClick={() => setSelectedTemplate(template.id)}
-                className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                  selectedTemplate === template.id
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-200 hover:border-purple-300'
-                }`}
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedTemplate === template.id
+                  ? 'border-purple-500 bg-purple-50'
+                  : 'border-gray-200 hover:border-purple-300'
+                  }`}
               >
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-semibold">{template.name}</h3>
@@ -196,7 +193,7 @@ export default function SendCarePrepPage({ params }: { params: { patientId: stri
             <div className="flex items-center gap-2 mb-4">
               <input
                 type="text"
-                value={generatedLink.full_url}
+                value={generatedLink.url}
                 readOnly
                 className="flex-1 px-3 py-2 bg-white border rounded-lg text-sm font-mono"
               />
@@ -204,7 +201,7 @@ export default function SendCarePrepPage({ params }: { params: { patientId: stri
                 <Copy className="w-4 h-4 mr-2" />
                 Copy
               </Button>
-              <Link href={generatedLink.full_url} target="_blank">
+              <Link href={generatedLink.url} target="_blank">
                 <Button variant="outline">
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Open
@@ -231,33 +228,30 @@ export default function SendCarePrepPage({ params }: { params: { patientId: stri
             <div className="flex gap-4 mb-4">
               <button
                 onClick={() => setSendMethod('email')}
-                className={`flex-1 p-4 border-2 rounded-lg transition-all ${
-                  sendMethod === 'email'
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-200 hover:border-purple-300'
-                }`}
+                className={`flex-1 p-4 border-2 rounded-lg transition-all ${sendMethod === 'email'
+                  ? 'border-purple-500 bg-purple-50'
+                  : 'border-gray-200 hover:border-purple-300'
+                  }`}
               >
                 <Mail className={`w-6 h-6 mx-auto mb-2 ${sendMethod === 'email' ? 'text-purple-600' : 'text-gray-400'}`} />
                 <p className="font-medium">Email</p>
               </button>
               <button
                 onClick={() => setSendMethod('sms')}
-                className={`flex-1 p-4 border-2 rounded-lg transition-all ${
-                  sendMethod === 'sms'
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-200 hover:border-purple-300'
-                }`}
+                className={`flex-1 p-4 border-2 rounded-lg transition-all ${sendMethod === 'sms'
+                  ? 'border-purple-500 bg-purple-50'
+                  : 'border-gray-200 hover:border-purple-300'
+                  }`}
               >
                 <MessageSquare className={`w-6 h-6 mx-auto mb-2 ${sendMethod === 'sms' ? 'text-purple-600' : 'text-gray-400'}`} />
                 <p className="font-medium">SMS</p>
               </button>
               <button
                 onClick={() => setSendMethod('both')}
-                className={`flex-1 p-4 border-2 rounded-lg transition-all ${
-                  sendMethod === 'both'
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-200 hover:border-purple-300'
-                }`}
+                className={`flex-1 p-4 border-2 rounded-lg transition-all ${sendMethod === 'both'
+                  ? 'border-purple-500 bg-purple-50'
+                  : 'border-gray-200 hover:border-purple-300'
+                  }`}
               >
                 <div className="flex justify-center gap-1 mb-2">
                   <Mail className={`w-5 h-5 ${sendMethod === 'both' ? 'text-purple-600' : 'text-gray-400'}`} />

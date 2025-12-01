@@ -10,6 +10,16 @@ const nextConfig = {
     // your project has TypeScript errors.
     ignoreBuildErrors: true,
   },
+  async rewrites() {
+    const apiUrl = process.env.API_URL || 'http://localhost:8000';
+    console.log('Proxying API requests to:', apiUrl);
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${apiUrl}/api/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

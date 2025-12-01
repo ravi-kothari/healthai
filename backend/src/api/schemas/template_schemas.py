@@ -2,7 +2,7 @@
 Pydantic schemas for SOAP template requests and responses.
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict, Any
 from src.api.models.template import TemplateType, TemplateCategory
 
@@ -40,7 +40,8 @@ class TemplateCreateRequest(BaseModel):
     is_favorite: bool = Field(False, description="Mark as favorite")
     practice_id: Optional[str] = Field(None, max_length=36, description="Practice ID (for practice templates)")
 
-    @validator("tags")
+    @field_validator("tags")
+    @classmethod
     def validate_tags(cls, v):
         """Validate tags list."""
         if v and len(v) > 20:
@@ -51,14 +52,16 @@ class TemplateCreateRequest(BaseModel):
                     raise ValueError("Tag length cannot exceed 50 characters")
         return v
 
-    @validator("appointment_types")
+    @field_validator("appointment_types")
+    @classmethod
     def validate_appointment_types(cls, v):
         """Validate appointment types list."""
         if v and len(v) > 10:
             raise ValueError("Maximum 10 appointment types allowed")
         return v
 
-    @validator("name")
+    @field_validator("name")
+    @classmethod
     def validate_name(cls, v):
         """Validate template name."""
         if not v.strip():
@@ -99,7 +102,8 @@ class TemplateUpdateRequest(BaseModel):
     is_favorite: Optional[bool] = None
     is_active: Optional[bool] = None
 
-    @validator("tags")
+    @field_validator("tags")
+    @classmethod
     def validate_tags(cls, v):
         """Validate tags list."""
         if v and len(v) > 20:
@@ -110,14 +114,16 @@ class TemplateUpdateRequest(BaseModel):
                     raise ValueError("Tag length cannot exceed 50 characters")
         return v
 
-    @validator("appointment_types")
+    @field_validator("appointment_types")
+    @classmethod
     def validate_appointment_types(cls, v):
         """Validate appointment types list."""
         if v and len(v) > 10:
             raise ValueError("Maximum 10 appointment types allowed")
         return v
 
-    @validator("name")
+    @field_validator("name")
+    @classmethod
     def validate_name(cls, v):
         """Validate template name."""
         if v is not None and not v.strip():

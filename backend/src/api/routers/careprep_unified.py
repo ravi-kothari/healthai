@@ -15,7 +15,8 @@ from sqlalchemy.orm import Session
 from src.api.database import get_db
 from src.api.models.user import User
 from src.api.models.patient import Patient
-from src.api.auth.dependencies import get_current_user
+from src.api.auth.dependencies import get_current_user, require_permission
+from src.api.auth.permissions import Permission
 from src.api.schemas.previsit_schemas import (
     SymptomAnalysisRequest,
     SymptomAnalysisResponse,
@@ -47,7 +48,7 @@ router = APIRouter(
 async def analyze_symptoms(
     request: SymptomAnalysisRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_permission(Permission.SUBMIT_PREVISIT_DATA))
 ):
     """
     Analyze patient symptoms using AI.
@@ -123,7 +124,7 @@ async def analyze_symptoms(
 async def triage_assessment(
     request: TriageAssessmentRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_permission(Permission.SUBMIT_PREVISIT_DATA))
 ):
     """
     Perform medical triage assessment.
@@ -197,7 +198,7 @@ async def triage_assessment(
 async def generate_questionnaire(
     request: QuestionnaireGenerationRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_permission(Permission.SUBMIT_PREVISIT_DATA))
 ):
     """
     Generate dynamic questionnaire based on chief complaint.
@@ -272,7 +273,7 @@ async def get_patient_summary(
     patient_id: str,
     include_appointment_prep: bool = Query(default=True, description="Include appointment prep checklist"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_permission(Permission.VIEW_OWN_DATA))
 ):
     """
     Get unified patient-facing appointment summary.

@@ -588,9 +588,87 @@ async def get_tenant_stats(
                 # "visits_this_month": visit_count,
             },
             "subscription": {
-                "plan": tenant.subscription_plan.value,
-                "status": tenant.subscription_status.value,
+                "plan": tenant.subscription_plan,
+                "status": tenant.subscription_status,
                 "trial_ends_at": tenant.trial_ends_at.isoformat() if tenant.trial_ends_at else None
+            }
+        }
+    finally:
+        reset_tenant_context(db)
+
+
+@router.get("/{tenant_id}/analytics")
+async def get_tenant_analytics(
+    tenant_id: str,
+    period: str = "30d",
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_tenant_admin)
+):
+    """
+    Get analytics data for a tenant.
+    
+    Aggregates:
+    - Clinical documents (transcripts, SOAP notes)
+    - Patient growth
+    """
+    if not current_user.can_access_tenant(tenant_id):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    # Set tenant context for RLS
+    set_tenant_context(db, tenant_id)
+
+    try:
+        from src.api.models.patient import Patient
+        from src.api.models.user import User as UserModel
+        from src.api.models.clinical import ClinicalDocument, DocumentType
+        from sqlalchemy import func, and_
+
+        # Calculate date range
+        now = datetime.utcnow()
+        if period == "7d":
+            start_date = now - timedelta(days=7)
+        elif period == "90d":
+            start_date = now - timedelta(days=90)
+        else: # default 30d
+            start_date = now - timedelta(days=30)
+
+        # 1. Document Metrics (Transcripts vs SOAP Notes)
+        # We join through Patient -> User to ensure tenant isolation if RLS wasn't enough, 
+        # but RLS on Patient should handle it. However, Patient RLS relies on User.tenant_id.
+        
+        # Count documents by type created in the period
+        doc_counts = db.query(
+            ClinicalDocument.document_type,
+            func.count(ClinicalDocument.id)
+        ).join(
+            Patient, ClinicalDocument.patient_id == Patient.id
+        ).filter(
+            ClinicalDocument.created_at >= start_date
+        ).group_by(
+            ClinicalDocument.document_type
+        ).all()
+        
+        doc_metrics = {type_.value: 0 for type_ in DocumentType}
+        for type_, count in doc_counts:
+            doc_metrics[type_.value] = count
+
+        # 2. Patient Growth
+        new_patients = db.query(func.count(Patient.id)).filter(
+            Patient.created_at >= start_date
+        ).scalar()
+        
+        total_patients = db.query(func.count(Patient.id)).scalar()
+
+        return {
+            "tenant_id": tenant_id,
+            "period": period,
+            "metrics": {
+                "documents": doc_metrics,
+                "patients": {
+                    "new": new_patients,
+                    "total": total_patients,
+                    "growth_rate": (new_patients / total_patients * 100) if total_patients > 0 else 0
+                }
             }
         }
     finally:

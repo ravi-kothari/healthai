@@ -20,6 +20,7 @@ from src.api.schemas.auth_schemas import (
     TokenResponse,
     RefreshTokenRequest,
     TenantInfo,
+    UserRoleUpdateRequest,
 )
 from src.api.auth.password import hash_password, verify_password
 from src.api.auth.jwt_handler import create_access_token, create_refresh_token, verify_token
@@ -361,3 +362,75 @@ async def logout(current_user: User = Depends(get_current_user)):
         "message": "Successfully logged out",
         "detail": "Please delete the token on the client side"
     }
+
+
+@router.get("/users", response_model=list[UserResponse])
+async def list_tenant_users(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    List all users in the current user's tenant.
+    Requires admin or super_admin role.
+    """
+    # Check permissions (must be admin or super admin)
+    if current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+
+    if current_user.role == UserRole.SUPER_ADMIN:
+        # Super admin sees all users (or could filter by tenant_id query param)
+        # For now, let's just return all users for super admin
+        users = db.query(User).all()
+    else:
+        # Tenant admin sees only their tenant's users
+        if not current_user.tenant_id:
+            return []
+        users = db.query(User).filter(User.tenant_id == current_user.tenant_id).all()
+
+    return [_build_user_response(u, db) for u in users]
+
+
+@router.put("/users/{user_id}/role", response_model=UserResponse)
+async def update_user_role(
+    user_id: str,
+    role_update: UserRoleUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Update a user's role.
+    Requires admin or super_admin role.
+    """
+    # Check permissions
+    if current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+
+    # Find target user
+    target_user = db.query(User).filter(User.id == user_id).first()
+    if not target_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    # Check tenant isolation
+    if current_user.role != UserRole.SUPER_ADMIN:
+        if target_user.tenant_id != current_user.tenant_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+
+    # Update role
+    target_user.role = role_update.role
+    db.commit()
+    db.refresh(target_user)
+
+    logger.info(f"User role updated: {target_user.id} -> {role_update.role}")
+    return _build_user_response(target_user, db)

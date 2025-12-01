@@ -28,16 +28,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     logger.info(f"Environment: {settings.ENVIRONMENT}")
     logger.info(f"API Version: {settings.API_VERSION}")
 
-    # TODO: Initialize database connection pool
-    # TODO: Initialize Redis connection
-    # TODO: Initialize FHIR client
+    # Initialize database connection
+    from src.api.database import init_db, close_db
+    await init_db()
 
     yield
 
     # Shutdown
     logger.info("👋 Shutting down AI Healthcare Application")
-    # TODO: Close database connections
-    # TODO: Close Redis connections
+    await close_db()
 
 
 # Create FastAPI application

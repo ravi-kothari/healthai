@@ -76,6 +76,20 @@ export default function ProviderLayout({
                 <Link href="/provider/templates" className="text-gray-600 hover:text-blue-600 transition-colors">
                   Templates
                 </Link>
+                <Link href="/provider/settings" className="text-gray-600 hover:text-blue-600 transition-colors">
+                  Settings
+                </Link>
+                {user?.role === 'admin' && (
+                  <>
+                    <div className="h-4 w-px bg-gray-300 mx-2" />
+                    <Link href="/provider/admin/subscription" className="text-gray-600 hover:text-blue-600 transition-colors">
+                      Subscription
+                    </Link>
+                    <Link href="/provider/admin/analytics" className="text-gray-600 hover:text-blue-600 transition-colors">
+                      Analytics
+                    </Link>
+                  </>
+                )}
               </nav>
             </div>
             <div className="flex items-center gap-4">

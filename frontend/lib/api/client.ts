@@ -125,6 +125,50 @@ class APIClient {
     return response.data;
   }
 
+  async getUsers() {
+    const response = await this.client.get('/api/auth/users');
+    return response.data;
+  }
+
+  async updateUserRole(userId: string, role: string) {
+    const response = await this.client.put(`/api/auth/users/${userId}/role`, { role });
+    return response.data;
+  }
+
+  // ==================== Tenants ====================
+
+  async getTenants(params?: {
+    skip?: number;
+    limit?: number;
+    status_filter?: string;
+    plan_filter?: string;
+  }) {
+    const response = await this.client.get('/api/tenants', { params });
+    return response.data;
+  }
+
+  async getTenant(tenantId: string) {
+    const response = await this.client.get(`/api/tenants/${tenantId}`);
+    return response.data;
+  }
+
+  async getTenantStats(tenantId: string) {
+    const response = await this.client.get(`/api/tenants/${tenantId}/stats`);
+    return response.data;
+  }
+
+  async createTenant(data: any) {
+    const response = await this.client.post('/api/tenants', data);
+    return response.data;
+  }
+
+  async getTenantAnalytics(tenantId: string, period: string = '30d') {
+    const response = await this.client.get(`/api/tenants/${tenantId}/analytics`, {
+      params: { period },
+    });
+    return response.data;
+  }
+
   // ==================== CarePrep ====================
 
   async analyzeSymptoms(data: {

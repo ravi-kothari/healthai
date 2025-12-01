@@ -8,7 +8,9 @@ import json
 from datetime import datetime, timedelta
 import jwt
 
-SECRET_KEY = "your-local-development-secret-change-in-production"
+import os
+
+SECRET_KEY = os.getenv("SECRET_KEY", "your-local-development-secret-change-in-production")
 
 # Mock users database
 USERS = {

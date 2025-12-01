@@ -80,12 +80,14 @@ class TestJWTTokens:
 
     def test_verify_invalid_token(self):
         """Test that invalid token raises exception."""
-        from jose.exceptions import JWTError
+        from fastapi import HTTPException
 
         invalid_token = "invalid.token.here"
 
-        with pytest.raises(JWTError):
+        with pytest.raises(HTTPException) as excinfo:
             verify_token(invalid_token)
+        
+        assert excinfo.value.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 @pytest.mark.unit

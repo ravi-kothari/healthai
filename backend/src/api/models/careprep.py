@@ -3,7 +3,7 @@ CarePrep response models.
 Stores patient responses to CarePrep checklist items.
 """
 
-from sqlalchemy import Column, String, Text, DateTime, Boolean, ForeignKey, JSON
+from sqlalchemy import Column, String, Text, DateTime, Boolean, ForeignKey, JSON, Integer
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
@@ -62,6 +62,7 @@ class CarePrepResponse(Base):
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
+
     def calculate_completion(self):
         """Calculate overall completion status."""
         self.all_tasks_completed = (
@@ -70,3 +71,33 @@ class CarePrepResponse(Base):
         )
         if self.all_tasks_completed and not self.completed_at:
             self.completed_at = datetime.utcnow()
+
+
+class CarePrepAccessToken(Base):
+    """
+    Secure access tokens for patient CarePrep forms.
+    Allows patients to access forms without authentication.
+    """
+    __tablename__ = "careprep_access_tokens"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    token = Column(String(255), unique=True, nullable=False, index=True)
+    patient_id = Column(String, ForeignKey("patients.id"), nullable=False)
+    appointment_id = Column(String, ForeignKey("appointments.id"), nullable=True)
+    
+    # Token lifecycle
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+    
+    # Usage tracking
+    first_accessed_at = Column(DateTime(timezone=True), nullable=True)
+    last_accessed_at = Column(DateTime(timezone=True), nullable=True)
+    submission_count = Column(Integer, default=0, nullable=False)
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    patient = relationship("Patient")
+    appointment = relationship("Appointment")

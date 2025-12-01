@@ -98,3 +98,10 @@ secrets/
 # OS
 .DS_Store
 Thumbs.db
+
+# Temporary debugging files
+careprep_link_*.json
+login_response_*.json
+sample_appointments.csv
+test_output.txt
+

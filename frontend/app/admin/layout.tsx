@@ -58,7 +58,7 @@ export default function AdminLayout({
     // Check if user is authenticated and is an admin
     if (!isAuthenticated) {
       router.push('/login');
-    } else if (user?.role !== 'admin') {
+    } else if (user?.role !== 'super_admin') {
       router.push('/dashboard');
     }
   }, [isAuthenticated, user, router]);
@@ -104,11 +104,10 @@ export default function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
-                  isActive(item.href)
+                className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${isActive(item.href)
                     ? 'bg-emerald-500/10 text-emerald-400'
                     : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                }`}
+                  }`}
               >
                 <div className="flex items-center">
                   <item.icon className="mr-3 h-5 w-5" />
@@ -134,11 +133,10 @@ export default function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
-                  isActive(item.href)
+                className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${isActive(item.href)
                     ? 'bg-emerald-500/10 text-emerald-400'
                     : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                }`}
+                  }`}
               >
                 <div className="flex items-center">
                   <item.icon className="mr-3 h-5 w-5" />

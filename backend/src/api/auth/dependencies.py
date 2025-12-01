@@ -24,7 +24,7 @@ from src.api.auth.jwt_handler import verify_token
 logger = logging.getLogger(__name__)
 
 # HTTP Bearer token security scheme
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
@@ -55,6 +55,12 @@ async def get_current_user(
         async def get_me(current_user: User = Depends(get_current_user)):
             return current_user.to_dict()
     """
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     token = credentials.credentials
     logger.debug(f"Authenticating token (first 50 chars): {token[:50]}...")
 
@@ -231,6 +237,30 @@ async def require_tenant_admin(
             detail="Admin access required"
         )
     return current_user
+
+
+def require_permission(permission: "Permission"):
+    """
+    Dependency factory to require a specific permission.
+    
+    Args:
+        permission: The required Permission enum value
+        
+    Returns:
+        Dependency function that checks user permissions
+    """
+    from src.api.auth.permissions import Permission, get_role_permissions
+
+    async def permission_checker(current_user: User = Depends(get_current_user)) -> User:
+        user_permissions = get_role_permissions(current_user.role)
+        if permission not in user_permissions:
+             raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied. Required permission: {permission.value}"
+            )
+        return current_user
+
+    return permission_checker
 
 
 def require_tenant_access(tenant_id: str):

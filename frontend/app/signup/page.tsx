@@ -38,7 +38,7 @@ export default function SignupPage() {
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 px-6 py-4">
         <div className="max-w-7xl mx-auto text-center text-sm text-gray-500">
-          <p>© 2024 SimplePractice · <Link href="/support" className="hover:text-gray-700">Support</Link> · <Link href="/terms" className="hover:text-gray-700">Licensed Content</Link></p>
+          <p>© 2025 MedGenie · <Link href="/support" className="hover:text-gray-700">Support</Link> · <Link href="/terms" className="hover:text-gray-700">Licensed Content</Link></p>
         </div>
       </footer>
     </div>

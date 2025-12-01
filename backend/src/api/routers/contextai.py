@@ -14,7 +14,8 @@ from sqlalchemy.orm import Session
 from src.api.database import get_db
 from src.api.models.user import User
 from src.api.models.patient import Patient
-from src.api.auth.dependencies import get_current_user
+from src.api.auth.dependencies import get_current_user, require_permission
+from src.api.auth.permissions import Permission
 from src.api.schemas.appoint_ready_schemas import (
     AppointmentContextResponse,
     CareGapsResponse,
@@ -46,7 +47,7 @@ async def get_appointment_context(
     include_fhir: bool = Query(default=True, description="Include FHIR medical history"),
     include_previsit: bool = Query(default=True, description="Include PreVisit.ai responses"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_permission(Permission.VIEW_CLINICAL_DATA))
 ):
     """
     Get comprehensive appointment context for a patient.
@@ -100,12 +101,11 @@ async def get_appointment_context(
             detail=f"Patient not found: {patient_id}"
         )
 
-    # Role-based access control (providers only)
-    if current_user.role not in ["doctor", "nurse", "admin", "staff"]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only healthcare providers can access appointment context"
-        )
+    # Let's update the function signature in the next step. For now, we will use the helper manually or just rely on the fact that we will update the signature.
+    
+    # Actually, the best way is to add the dependency to the path operation decorator or the function arguments.
+    # Let's update the function arguments to include the permission check.
+    pass
 
     try:
         # Build comprehensive context
@@ -131,7 +131,7 @@ async def get_appointment_context(
 async def get_care_gaps(
     patient_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_permission(Permission.VIEW_CLINICAL_DATA))
 ):
     """
     Identify care gaps for a patient.
@@ -174,12 +174,7 @@ async def get_care_gaps(
             detail=f"Patient not found: {patient_id}"
         )
 
-    # Role check
-    if current_user.role not in ["doctor", "nurse", "admin", "staff"]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only healthcare providers can access care gap analysis"
-        )
+    # Permission check handled by dependency
 
     try:
         # Get patient context first
@@ -217,7 +212,7 @@ async def get_care_gaps(
 async def get_risk_assessment(
     patient_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_permission(Permission.VIEW_CLINICAL_DATA))
 ):
     """
     Calculate clinical risk scores for a patient.
@@ -260,12 +255,7 @@ async def get_risk_assessment(
             detail=f"Patient not found: {patient_id}"
         )
 
-    # Role check
-    if current_user.role not in ["doctor", "nurse", "admin", "staff"]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only healthcare providers can access risk assessments"
-        )
+    # Permission check handled by dependency
 
     try:
         # Get patient context
@@ -301,7 +291,7 @@ async def get_risk_assessment(
 async def get_test_results(
     patient_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_permission(Permission.VIEW_CLINICAL_DATA))
 ):
     """
     Get and analyze relevant test results for a patient.
@@ -346,12 +336,7 @@ async def get_test_results(
             detail=f"Patient not found: {patient_id}"
         )
 
-    # Role check
-    if current_user.role not in ["doctor", "nurse", "admin", "staff"]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only healthcare providers can access test results"
-        )
+    # Permission check handled by dependency
 
     try:
         # Analyze test results
@@ -373,7 +358,7 @@ async def get_test_results(
 async def get_medication_review(
     patient_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_permission(Permission.VIEW_CLINICAL_DATA))
 ):
     """
     Perform comprehensive medication review including interaction checking.
@@ -434,12 +419,7 @@ async def get_medication_review(
             detail=f"Patient not found: {patient_id}"
         )
 
-    # Role check
-    if current_user.role not in ["doctor", "nurse", "admin", "staff"]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only healthcare providers can access medication reviews"
-        )
+    # Permission check handled by dependency
 
     try:
         # Perform medication review

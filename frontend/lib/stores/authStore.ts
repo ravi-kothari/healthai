@@ -13,6 +13,7 @@ interface User {
   full_name: string;
   role: string;
   is_active: boolean;
+  tenant_id?: string;
 }
 
 interface AuthState {

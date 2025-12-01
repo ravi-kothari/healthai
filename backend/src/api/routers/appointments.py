@@ -3,7 +3,7 @@ Appointment management endpoints.
 Handles scheduling, retrieval, and management of patient appointments.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 from datetime import datetime, timedelta
@@ -339,4 +339,99 @@ async def get_appointment_by_careprep_token(
         "chief_complaint": appointment.chief_complaint,
         "duration_minutes": appointment.duration_minutes,
         "status": appointment.status.value if appointment.status else None
+    }
+
+@router.post("/import")
+async def import_appointments(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Bulk import appointments from a CSV file.
+    
+    Expected CSV columns:
+    - patient_email (or patient_id)
+    - date (YYYY-MM-DD)
+    - time (HH:MM)
+    - duration_minutes (optional, default 30)
+    - type (optional, default 'initial_consultation')
+    - notes (optional)
+    """
+    if current_user.role not in ["admin", "doctor"]:
+        raise HTTPException(status_code=403, detail="Not authorized to import appointments")
+
+    import csv
+    import io
+    from src.api.models.patient import Patient
+
+    content = await file.read()
+    decoded_content = content.decode('utf-8')
+    csv_reader = csv.DictReader(io.StringIO(decoded_content))
+    
+    success_count = 0
+    failed_count = 0
+    errors = []
+    
+    # Normalize headers
+    if csv_reader.fieldnames:
+        csv_reader.fieldnames = [h.lower().strip() for h in csv_reader.fieldnames]
+
+    for row_idx, row in enumerate(csv_reader, start=1):
+        try:
+            # 1. Find Patient
+            patient = None
+            if 'patient_id' in row and row['patient_id']:
+                patient = db.query(Patient).filter(Patient.id == row['patient_id']).first()
+            elif 'patient_email' in row and row['patient_email']:
+                # Join with User table to find patient by email
+                patient = db.query(Patient).join(User).filter(User.email == row['patient_email']).first()
+            
+            if not patient:
+                raise ValueError(f"Patient not found for row {row_idx}")
+
+            # 2. Parse Date/Time
+            date_str = row.get('date')
+            time_str = row.get('time')
+            if not date_str or not time_str:
+                raise ValueError("Date and Time are required")
+            
+            start_dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+            duration = int(row.get('duration_minutes', 30))
+            end_dt = start_dt + timedelta(minutes=duration)
+
+            # 3. Create Appointment
+            appt_type = row.get('type', 'initial_consultation')
+            # Validate enum if possible, or let it fail/default
+            
+            new_appt = Appointment(
+                patient_id=patient.id,
+                provider_id=current_user.id, # Assign to current user
+                appointment_type=appt_type,
+                status=AppointmentStatus.SCHEDULED,
+                scheduled_start=start_dt,
+                scheduled_end=end_dt,
+                duration_minutes=duration,
+                notes=row.get('notes', ''),
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
+            )
+            db.add(new_appt)
+            success_count += 1
+            
+        except Exception as e:
+            failed_count += 1
+            errors.append(f"Row {row_idx}: {str(e)}")
+            logger.error(f"Import error row {row_idx}: {e}")
+
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database commit failed: {str(e)}")
+
+    return {
+        "success_count": success_count,
+        "failed_count": failed_count,
+        "errors": errors
     }

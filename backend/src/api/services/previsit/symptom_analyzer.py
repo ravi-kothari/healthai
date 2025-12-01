@@ -113,7 +113,8 @@ class SymptomAnalyzer:
         """
         logger.info(f"Generating questionnaire for: {chief_complaint}")
 
-        prompt = self._build_questionnaire_prompt(chief_complaint, symptoms)
+        symptom_names = [s.name for s in symptoms] if symptoms else None
+        prompt = self._build_questionnaire_prompt(chief_complaint, symptom_names)
 
         messages = [
             {

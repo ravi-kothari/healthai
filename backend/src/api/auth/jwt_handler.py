@@ -92,7 +92,7 @@ def verify_token(token: str) -> Dict[str, Any]:
 
         return payload
 
-    except JWTError as e:
+    except (JWTError, ValueError, UnicodeDecodeError) as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Could not validate credentials: {str(e)}",

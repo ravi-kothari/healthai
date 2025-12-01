@@ -2,7 +2,7 @@
 Pydantic schemas for patient requests and responses.
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List
 from datetime import date
 from src.api.models.patient import Gender, BloodType
@@ -40,7 +40,8 @@ class PatientCreateRequest(BaseModel):
     current_medications: Optional[List[str]] = Field(default_factory=list)
     notes: Optional[str] = None
 
-    @validator("date_of_birth")
+    @field_validator("date_of_birth")
+    @classmethod
     def validate_date_of_birth(cls, v):
         """Validate date of birth is not in the future."""
         if v > date.today():

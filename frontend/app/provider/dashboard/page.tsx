@@ -122,11 +122,7 @@ export default function ProviderDashboardPage() {
             <p className="text-slate-300 mt-2">Welcome back, {user?.full_name || user?.email || 'Provider'}</p>
           </div>
           <div className="flex gap-2 shrink-0 flex-wrap">
-            <Link href="/dashboard">
-              <Button variant="ghost" size="sm" className="bg-white/10 text-white hover:bg-white/20 border border-white/20">
-                📊 SaaS
-              </Button>
-            </Link>
+
             <Link href="/provider/templates">
               <Button variant="ghost" size="sm" className="bg-white/10 text-white hover:bg-white/20 border border-white/20">
                 <FileText className="w-4 h-4 mr-2" /> Templates
