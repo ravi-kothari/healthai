@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -12,8 +12,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Users, ListTodo, Plus, TrendingUp, Clock, FileText, Stethoscope, Edit3, Sparkles, ClipboardList, Send, Eye, AlertTriangle, Target, Activity } from "lucide-react";
 import Link from "next/link";
+import axios from 'axios';
 import { useAuthStore } from '@/lib/stores/authStore';
 import PreVisitPrepModal from '@/components/provider/PreVisitPrepModal';
+import { WelcomeModal } from '@/components/dashboard/WelcomeModal';
 
 type CareprepStatus = 'not_sent' | 'pending' | 'completed';
 type AppointReadyStatus = 'Ready' | 'Pending' | 'Incomplete';
@@ -78,39 +80,64 @@ const riskColorMap: Record<RiskLevel, string> = {
   low: "bg-green-100 text-green-700 border-green-200",
 };
 
-// Mock data with context badges
-const todaysSchedule: ScheduledAppointment[] = [
-  { id: "appt-p1", patient: { id: "p1", name: "Jane Cooper" }, time: "09:00 AM", reason: "Follow-up", isNewPatient: false, careprepStatus: "completed", riskLevel: "medium", careGapsCount: 2 },
-  { id: "appt-p2", patient: { id: "p2", name: "Robert Fox" }, time: "09:30 AM", reason: "Annual Physical", isNewPatient: true, careprepStatus: "pending", riskLevel: "low", careGapsCount: 0 },
-  { id: "appt-p3", patient: { id: "p3", name: "Cody Fisher" }, time: "10:00 AM", reason: "Medication Check", isNewPatient: false, careprepStatus: "not_sent", riskLevel: "high", careGapsCount: 4 },
-  { id: "appt-p4", patient: { id: "p4", name: "Esther Howard" }, time: "10:15 AM", reason: "New Complaint", isNewPatient: false, careprepStatus: "not_sent", riskLevel: "medium", careGapsCount: 1 },
-];
-
-const patientList: PatientListItem[] = [
-  { id: "p1", name: "Jane Cooper", lastSeen: "2 weeks ago", appointReadyStatus: "Ready" },
-  { id: "p4", name: "Esther Howard", lastSeen: "1 month ago", appointReadyStatus: "Pending" },
-  { id: "p2", name: "Robert Fox", lastSeen: "N/A", appointReadyStatus: "Incomplete" },
-];
-
-const pendingTasks: ProviderTask[] = [
-  { id: "task-p1", description: "Review lab results", patientName: "Jane Cooper", dueDate: "Today", priority: "High" },
-  { id: "task-p2", description: "Sign prescription renewal", patientName: "Cody Fisher", dueDate: "Tomorrow", priority: "Medium" },
-  { id: "task-p3", description: "Complete chart notes", patientName: "Robert Fox", dueDate: "Today", priority: "High" },
-];
-
-const recentVisits: RecentVisit[] = [
-  { id: "visit-1", patientName: "Jane Cooper", visitDate: "Today, 9:00 AM", chiefComplaint: "Follow-up", soapStatus: "completed", visitId: "appt-p1" },
-  { id: "visit-2", patientName: "Robert Fox", visitDate: "Today, 9:30 AM", chiefComplaint: "Annual Physical", soapStatus: "pending", visitId: "appt-p2" },
-  { id: "visit-3", patientName: "Cody Fisher", visitDate: "Yesterday, 2:00 PM", chiefComplaint: "Medication Check", soapStatus: "in_progress", visitId: "appt-p3" },
-];
-
 export default function ProviderDashboardPage() {
-  // Auth is handled by the layout - no need to check here
   const { user } = useAuthStore();
   const [selectedAppointment, setSelectedAppointment] = useState<ScheduledAppointment | null>(null);
+  const [todaysSchedule, setTodaysSchedule] = useState<ScheduledAppointment[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const pendingSOAPNotes = recentVisits.filter(v => v.soapStatus !== 'completed').length;
+  // Derived state
+  const pendingSOAPNotes = 0; // TODO: Fetch from API
   const highRiskPatients = todaysSchedule.filter(a => a.riskLevel === 'high').length;
+  const pendingTasks: ProviderTask[] = []; // TODO: Fetch from API
+  const recentVisits: RecentVisit[] = []; // TODO: Fetch from API
+  const patientList: PatientListItem[] = todaysSchedule.map(appt => ({
+    id: appt.patient.id,
+    name: appt.patient.name,
+    lastSeen: "Today",
+    appointReadyStatus: "Ready" // Mock
+  }));
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      if (!user?.id) return;
+
+      try {
+        const token = localStorage.getItem('access_token');
+        // Fetch upcoming appointments instead of today's, to show seeded future data
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/appointments/provider/${user.id}/upcoming`,
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+
+        if (response.data && response.data.appointments) {
+          const mappedAppointments: ScheduledAppointment[] = response.data.appointments.map((appt: any) => ({
+            id: appt.appointment_id,
+            patient: {
+              id: appt.patient_id,
+              name: appt.patient_name || 'Unknown Patient'
+            },
+            time: new Date(appt.scheduled_start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            reason: appt.chief_complaint || 'General Visit',
+            isNewPatient: appt.appointment_type === 'initial_consultation',
+            careprepStatus: appt.previsit_completed ? 'completed' : 'not_sent', // Simple mapping
+            riskLevel: 'medium', // Default
+            careGapsCount: 0 // Default
+          }));
+          setTodaysSchedule(mappedAppointments);
+        }
+      } catch (error) {
+        console.error('Error fetching appointments:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAppointments();
+  }, [user?.id]);
+
 
   return (
     <div className="space-y-6">
@@ -238,7 +265,7 @@ export default function ProviderDashboardPage() {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <Calendar className="w-5 h-5 text-blue-600" />
-                    Today's Schedule
+                    Upcoming Schedule
                   </CardTitle>
                   <CardDescription>{todaysSchedule.length} appointments • Click patient name for pre-visit prep</CardDescription>
                 </div>
@@ -488,6 +515,7 @@ export default function ProviderDashboardPage() {
           appointment={selectedAppointment}
         />
       )}
+      <WelcomeModal />
     </div>
   );
 }

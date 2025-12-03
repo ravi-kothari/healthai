@@ -61,7 +61,7 @@ const PLANS = [
       'Up to 50 users',
       'Up to 5,000 patients',
       'Advanced AI assistant',
-      'CarePrep & PreVisit.ai',
+      'CarePrep & MedGenie PreVisit',
       'FHIR integration',
       'Priority support',
     ],
@@ -187,11 +187,10 @@ export default function OnboardingPage() {
                       <button
                         key={type.value}
                         onClick={() => handleInputChange('organizationType', type.value)}
-                        className={`p-4 border rounded-lg text-left transition-all ${
-                          formData.organizationType === type.value
+                        className={`p-4 border rounded-lg text-left transition-all ${formData.organizationType === type.value
                             ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-500'
                             : 'border-slate-200 hover:border-slate-300'
-                        }`}
+                          }`}
                       >
                         <p className="font-medium text-slate-900">{type.label}</p>
                         <p className="text-sm text-slate-500">{type.description}</p>
@@ -482,11 +481,10 @@ export default function OnboardingPage() {
                   <button
                     key={plan.id}
                     onClick={() => handleInputChange('selectedPlan', plan.id)}
-                    className={`relative p-6 border rounded-xl text-left transition-all ${
-                      formData.selectedPlan === plan.id
+                    className={`relative p-6 border rounded-xl text-left transition-all ${formData.selectedPlan === plan.id
                         ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-500'
                         : 'border-slate-200 hover:border-slate-300'
-                    }`}
+                      }`}
                   >
                     {plan.popular && (
                       <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-emerald-500 text-white text-xs font-medium rounded-full">
@@ -631,13 +629,12 @@ export default function OnboardingPage() {
                 <div key={step.id} className="flex items-center">
                   <div className="flex flex-col items-center">
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                        isComplete
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isComplete
                           ? 'bg-emerald-500 text-white'
                           : isCurrent
-                          ? 'bg-emerald-100 text-emerald-600 ring-2 ring-emerald-500'
-                          : 'bg-slate-100 text-slate-400'
-                      }`}
+                            ? 'bg-emerald-100 text-emerald-600 ring-2 ring-emerald-500'
+                            : 'bg-slate-100 text-slate-400'
+                        }`}
                     >
                       {isComplete ? (
                         <CheckCircle2 className="w-5 h-5" />
@@ -646,18 +643,16 @@ export default function OnboardingPage() {
                       )}
                     </div>
                     <span
-                      className={`mt-2 text-xs font-medium ${
-                        isCurrent ? 'text-emerald-600' : 'text-slate-500'
-                      }`}
+                      className={`mt-2 text-xs font-medium ${isCurrent ? 'text-emerald-600' : 'text-slate-500'
+                        }`}
                     >
                       {step.title}
                     </span>
                   </div>
                   {index < STEPS.length - 1 && (
                     <div
-                      className={`w-16 h-0.5 mx-2 ${
-                        isComplete ? 'bg-emerald-500' : 'bg-slate-200'
-                      }`}
+                      className={`w-16 h-0.5 mx-2 ${isComplete ? 'bg-emerald-500' : 'bg-slate-200'
+                        }`}
                     />
                   )}
                 </div>

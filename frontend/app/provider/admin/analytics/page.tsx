@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/authStore';
 import apiClient from '@/lib/api/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,13 +23,14 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsPage() {
-    const { user } = useAuthStore();
+    const router = useRouter();
+    const { user, isAuthenticated } = useAuthStore();
     const [data, setData] = useState<AnalyticsData | null>(null);
     const [loading, setLoading] = useState(true);
     const [period, setPeriod] = useState('30d');
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchAnalytics = async () => {
             if (!user?.tenant_id) return;
 
             setLoading(true);
@@ -42,8 +44,15 @@ export default function AnalyticsPage() {
             }
         };
 
-        fetchData();
-    }, [user?.tenant_id, period]);
+        // Added access control logic as per instruction
+        if (!isAuthenticated || !user) {
+            router.replace('/login');
+        } else if (user.role !== 'admin' && user.role !== 'doctor') {
+            router.replace('/provider/dashboard');
+        } else {
+            fetchAnalytics();
+        }
+    }, [user?.tenant_id, period, isAuthenticated, user, router]);
 
     if (loading) {
         return (

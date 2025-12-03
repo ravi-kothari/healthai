@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { SignupForm } from '@/components/auth/SignupForm';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -9,8 +10,8 @@ export default function SignupPage() {
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg" />
-            <span className="text-xl font-bold text-gray-900">simplepractice</span>
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">M</div>
+            <span className="text-xl font-bold text-gray-900">MedGeni</span>
           </Link>
           <Link
             href="/login"
@@ -31,7 +32,9 @@ export default function SignupPage() {
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full">
-          <SignupForm />
+          <Suspense fallback={<div className="flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+            <SignupForm />
+          </Suspense>
         </div>
       </main>
 

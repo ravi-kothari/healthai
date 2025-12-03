@@ -35,6 +35,7 @@ const navItems: NavItem[] = [
   { href: '/admin/organizations', label: 'Organizations', icon: Building2, badge: 'New' },
   { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/admin/audit', label: 'Audit Logs', icon: Shield },
   { href: '/admin/billing', label: 'Billing', icon: CreditCard },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];
@@ -105,8 +106,8 @@ export default function AdminLayout({
                 key={item.href}
                 href={item.href}
                 className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${isActive(item.href)
-                    ? 'bg-emerald-500/10 text-emerald-400'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-emerald-500/10 text-emerald-400'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                   }`}
               >
                 <div className="flex items-center">
@@ -115,7 +116,7 @@ export default function AdminLayout({
                 </div>
                 {item.badge && (
                   <Badge
-                    variant={typeof item.badge === 'number' ? 'destructive' : 'primary'}
+                    variant={typeof item.badge === 'number' ? 'danger' : 'primary'}
                     size="sm"
                   >
                     {item.badge}
@@ -134,8 +135,8 @@ export default function AdminLayout({
                 key={item.href}
                 href={item.href}
                 className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${isActive(item.href)
-                    ? 'bg-emerald-500/10 text-emerald-400'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-emerald-500/10 text-emerald-400'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                   }`}
               >
                 <div className="flex items-center">
@@ -143,7 +144,7 @@ export default function AdminLayout({
                   <span>{item.label}</span>
                 </div>
                 {item.badge && (
-                  <Badge variant="destructive" size="sm">
+                  <Badge variant="danger" size="sm">
                     {item.badge}
                   </Badge>
                 )}

@@ -9,7 +9,7 @@ import { AlertCircle } from 'lucide-react';
 /**
  * Patient Appointment Preparation Page
  *
- * This page displays the unified PreVisit.ai + Appoint-Ready summary
+ * This page displays the unified MedGenie PreVisit + MedGenie Context summary
  * that shows patients what to expect and prepare for their appointment.
  *
  * Features:

@@ -228,7 +228,19 @@ async def get_todays_appointments(
         "provider_id": target_provider_id,
         "date": now.date().isoformat(),
         "count": len(appointments),
-        "appointments": [appt.to_dict() for appt in appointments]
+        "appointments": [
+            {
+                **appt.to_dict(),
+                "patient": {
+                    "id": appt.patient.id,
+                    "name": f"{appt.patient.first_name} {appt.patient.last_name}",
+                    "first_name": appt.patient.first_name,
+                    "last_name": appt.patient.last_name,
+                    "mrn": appt.patient.mrn,
+                } if appt.patient else None
+            }
+            for appt in appointments
+        ]
     }
 
 

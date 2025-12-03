@@ -22,8 +22,21 @@ import {
   Download,
   ChevronLeft,
   ChevronRight,
+  Loader2,
+  Activity,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api/client';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Tenant {
   id: string;
@@ -48,6 +61,9 @@ export default function OrganizationsPage() {
   const [selectedPlan, setSelectedPlan] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingOrg, setEditingOrg] = useState<Tenant | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchOrganizations();
@@ -62,6 +78,51 @@ export default function OrganizationsPage() {
       console.error('Failed to fetch organizations:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSuspend = async (org: Tenant) => {
+    if (!confirm(`Are you sure you want to suspend ${org.name}?`)) return;
+    try {
+      await apiClient.suspendTenant(org.id);
+      fetchOrganizations();
+    } catch (error) {
+      console.error('Failed to suspend organization:', error);
+    }
+  };
+
+  const handleActivate = async (org: Tenant) => {
+    try {
+      await apiClient.activateTenant(org.id);
+      fetchOrganizations();
+    } catch (error) {
+      console.error('Failed to activate organization:', error);
+    }
+  };
+
+  const handleEdit = (org: Tenant) => {
+    setEditingOrg(org);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingOrg) return;
+
+    try {
+      setIsSubmitting(true);
+      await apiClient.updateTenant(editingOrg.id, {
+        name: editingOrg.name,
+        subscription_plan: editingOrg.subscription_plan,
+        max_users: editingOrg.max_users,
+        max_patients: editingOrg.max_patients,
+      });
+      setIsEditModalOpen(false);
+      fetchOrganizations();
+    } catch (error) {
+      console.error('Failed to update organization:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -266,7 +327,7 @@ export default function OrganizationsPage() {
                         <Badge
                           variant={
                             org.status === 'active' ? 'success' :
-                              org.status === 'trial' ? 'warning' : 'destructive'
+                              org.status === 'trial' ? 'warning' : 'danger'
                           }
                           size="sm"
                         >
@@ -286,12 +347,30 @@ export default function OrganizationsPage() {
                           <button className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
                             <Eye className="w-4 h-4" />
                           </button>
-                          <button className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                          <button
+                            className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                            onClick={() => handleEdit(org)}
+                            title="Edit Organization"
+                          >
                             <Edit className="w-4 h-4" />
                           </button>
-                          <button className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {org.status === 'suspended' ? (
+                            <button
+                              className="p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                              onClick={() => handleActivate(org)}
+                              title="Activate Organization"
+                            >
+                              <Activity className="w-4 h-4" />
+                            </button>
+                          ) : (
+                            <button
+                              className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              onClick={() => handleSuspend(org)}
+                              title="Suspend Organization"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -321,6 +400,83 @@ export default function OrganizationsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Organization</DialogTitle>
+            <DialogDescription>
+              Make changes to the organization here. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          {editingOrg && (
+            <form onSubmit={handleSaveEdit}>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Name
+                  </Label>
+                  <Input
+                    id="name"
+                    value={editingOrg.name}
+                    onChange={(e) => setEditingOrg({ ...editingOrg, name: e.target.value })}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="plan" className="text-right">
+                    Plan
+                  </Label>
+                  <div className="col-span-3">
+                    <select
+                      id="plan"
+                      value={editingOrg.subscription_plan}
+                      onChange={(e) => setEditingOrg({ ...editingOrg, subscription_plan: e.target.value })}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="trial">Trial</option>
+                      <option value="starter">Starter</option>
+                      <option value="professional">Professional</option>
+                      <option value="enterprise">Enterprise</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="max_users" className="text-right">
+                    Max Users
+                  </Label>
+                  <Input
+                    id="max_users"
+                    type="number"
+                    value={editingOrg.max_users}
+                    onChange={(e) => setEditingOrg({ ...editingOrg, max_users: parseInt(e.target.value) })}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="max_patients" className="text-right">
+                    Max Patients
+                  </Label>
+                  <Input
+                    id="max_patients"
+                    type="number"
+                    value={editingOrg.max_patients}
+                    onChange={(e) => setEditingOrg({ ...editingOrg, max_patients: parseInt(e.target.value) })}
+                    className="col-span-3"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save changes
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

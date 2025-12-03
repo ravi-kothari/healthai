@@ -38,7 +38,20 @@ export default function SubscriptionPage() {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (!user?.tenant_id) return;
+            if (!user) {
+                router.replace('/login');
+                return;
+            }
+
+            if (user.role !== 'admin' && user.role !== 'doctor') {
+                router.replace('/provider/dashboard');
+                return;
+            }
+
+            if (!user?.tenant_id) {
+                setLoading(false); // If no tenant_id, stop loading and show appropriate message or redirect
+                return;
+            }
 
             try {
                 const [tenantData, statsData] = await Promise.all([

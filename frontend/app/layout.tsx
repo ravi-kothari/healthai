@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,8 +19,8 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Healthcare Platform",
-  description: "Intelligent healthcare with PreVisit.ai and Appoint-Ready",
+  title: "MedGenie",
+  description: "Intelligent healthcare with MedGenie PreVisit and MedGenie Context",
 };
 
 export default function RootLayout({
@@ -34,6 +35,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           {children}
+          <Toaster position="top-right" />
         </AuthProvider>
       </body>
     </html>

@@ -363,6 +363,29 @@ export default function LandingPage() {
                   </div>
                   <Badge variant="success">CarePrep Complete</Badge>
                 </div>
+                <div className="p-6 bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">MedGenie PreVisit</h3>
+                  <p className="text-slate-600">
+                    Automated patient intake and symptom analysis before the visit begins.
+                  </p>
+                </div>
+
+                <div className="p-6 bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">MedGenie Context</h3>
+                  <p className="text-slate-600">
+                    Real-time clinical context and care gap detection for providers.
+                  </p>
+                </div>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -421,7 +444,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* PreVisit.ai Feature Section - CarePrep */}
+      {/* MedGenie PreVisit Feature Section - CarePrep */}
       <section id="careprep" className="py-20 sm:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -479,7 +502,7 @@ export default function LandingPage() {
                       <p className="text-sm font-medium text-slate-900 mb-1">Severity</p>
                       <div className="flex items-center gap-2">
                         <div className="flex-1 bg-slate-200 rounded-full h-2">
-                          <div className="bg-amber-500 h-2 rounded-full" style={{width: '60%'}}></div>
+                          <div className="bg-amber-500 h-2 rounded-full" style={{ width: '60%' }}></div>
                         </div>
                         <span className="text-sm text-slate-600">Moderate</span>
                       </div>
@@ -496,7 +519,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Appoint-Ready Feature Section - ContextAI */}
+      {/* MedGenie Context Feature Section - ContextAI */}
       <section id="contextai" className="py-20 sm:py-32 bg-cream-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">

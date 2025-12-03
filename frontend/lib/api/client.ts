@@ -162,10 +162,45 @@ class APIClient {
     return response.data;
   }
 
+  async updateTenant(tenantId: string, data: any) {
+    const response = await this.client.patch(`/api/tenants/${tenantId}`, data);
+    return response.data;
+  }
+
+  async suspendTenant(tenantId: string) {
+    const response = await this.client.post(`/api/tenants/${tenantId}/suspend`);
+    return response.data;
+  }
+
+  async activateTenant(tenantId: string) {
+    const response = await this.client.post(`/api/tenants/${tenantId}/activate`);
+    return response.data;
+  }
+
+  async createInvitation(tenantId: string, data: { email: string; role: string }) {
+    const response = await this.client.post(`/api/tenants/${tenantId}/invitations`, data);
+    return response.data;
+  }
+
+  async getInvitations(tenantId: string) {
+    const response = await this.client.get(`/api/tenants/${tenantId}/invitations`);
+    return response.data;
+  }
+
   async getTenantAnalytics(tenantId: string, period: string = '30d') {
     const response = await this.client.get(`/api/tenants/${tenantId}/analytics`, {
       params: { period },
     });
+    return response.data;
+  }
+
+  async getGlobalAnalytics() {
+    const response = await this.client.get('/api/tenants/admin/analytics');
+    return response.data;
+  }
+
+  async getGlobalAuditLogs(params?: { skip?: number; limit?: number }) {
+    const response = await this.client.get('/api/tenants/admin/audit-logs', { params });
     return response.data;
   }
 

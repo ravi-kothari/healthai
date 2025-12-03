@@ -41,8 +41,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
 
 # Create FastAPI application
 app = FastAPI(
-    title="AI Healthcare Application API",
-    description="AI-powered healthcare platform with CarePrep and ContextAI features",
+    title="MedGenie API",
+    description="AI-powered healthcare platform with MedGenie PreVisit and MedGenie Context features",
     version=settings.API_VERSION,
     docs_url="/docs" if settings.ENVIRONMENT != "production" else None,
     redoc_url="/redoc" if settings.ENVIRONMENT != "production" else None,
@@ -136,7 +136,7 @@ async def app_info():
         dict: Application metadata
     """
     return {
-        "name": "AI Healthcare Application",
+        "name": "MedGenie",
         "version": settings.API_VERSION,
         "environment": settings.ENVIRONMENT,
         "features": {
@@ -174,7 +174,7 @@ async def root():
         dict: Welcome message and quick links
     """
     return {
-        "message": "Welcome to AI Healthcare Application API",
+        "message": "Welcome to MedGenie API",
         "version": settings.API_VERSION,
         "docs": "/docs" if settings.ENVIRONMENT != "production" else "Documentation disabled in production",
         "health": "/health",

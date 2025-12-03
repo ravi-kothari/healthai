@@ -138,6 +138,16 @@ def require_tenant_admin(current_user: User = Depends(get_current_user)) -> User
     return current_user
 
 
+def require_tenant_access(current_user: User = Depends(get_current_user)) -> User:
+    """Require tenant access (admin, super admin, or doctor)."""
+    if current_user.role not in [UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.DOCTOR]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied"
+        )
+    return current_user
+
+
 def log_audit(
     db: Session,
     tenant_id: str,
@@ -214,8 +224,8 @@ async def create_tenant(
             detail="Organization slug already exists"
         )
 
-    # Set trial end date (14 days)
-    trial_ends_at = datetime.utcnow() + timedelta(days=14)
+    # Set trial end date (30 days)
+    trial_ends_at = datetime.utcnow() + timedelta(days=30)
 
     # Default settings based on plan
     default_settings = {
@@ -560,7 +570,7 @@ async def update_onboarding_step(
 async def get_tenant_stats(
     tenant_id: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_tenant_admin)
+    current_user: User = Depends(require_tenant_access)
 ):
     """Get usage statistics for a tenant."""
     if not current_user.can_access_tenant(tenant_id):
@@ -597,12 +607,100 @@ async def get_tenant_stats(
         reset_tenant_context(db)
 
 
+@router.get("/admin/analytics")
+async def get_global_analytics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_super_admin)
+):
+    """
+    Get global analytics for the platform (Super Admin only).
+    """
+    from src.api.models.patient import Patient
+    from src.api.models.user import User as UserModel
+    from sqlalchemy import func
+
+    # 1. Key Metrics
+    total_tenants = db.query(func.count(Tenant.id)).scalar()
+    total_users = db.query(func.count(UserModel.id)).scalar()
+    total_patients = db.query(func.count(Patient.id)).scalar()
+    
+    # 2. Tenants by Plan
+    tenants_by_plan = db.query(
+        Tenant.subscription_plan,
+        func.count(Tenant.id)
+    ).group_by(Tenant.subscription_plan).all()
+    
+    plan_distribution = {plan.value: 0 for plan in SubscriptionPlan}
+    for plan, count in tenants_by_plan:
+        if plan:
+            # Handle case where plan is returned as string or Enum
+            key = plan.value if hasattr(plan, 'value') else plan
+            if key in plan_distribution:
+                plan_distribution[key] = count
+
+    # 3. Tenants by Status
+    tenants_by_status = db.query(
+        Tenant.status,
+        func.count(Tenant.id)
+    ).group_by(Tenant.status).all()
+    
+    status_distribution = {status.value: 0 for status in TenantStatus}
+    for status, count in tenants_by_status:
+        if status:
+            # Handle case where status is returned as string or Enum
+            key = status.value if hasattr(status, 'value') else status
+            if key in status_distribution:
+                status_distribution[key] = count
+
+    # 4. Recent Tenants (Last 5)
+    recent_tenants = db.query(Tenant).order_by(
+        Tenant.created_at.desc()
+    ).limit(5).all()
+
+    return {
+        "metrics": {
+            "total_tenants": total_tenants,
+            "total_users": total_users,
+            "total_patients": total_patients
+        },
+        "distributions": {
+            "plans": plan_distribution,
+            "statuses": status_distribution
+        },
+        "recent_tenants": [
+            {
+                "id": t.id,
+                "name": t.name,
+                "plan": t.subscription_plan.value if hasattr(t.subscription_plan, 'value') else t.subscription_plan,
+                "created_at": t.created_at
+            } for t in recent_tenants
+        ]
+    }
+
+
+@router.get("/admin/audit-logs")
+async def get_global_audit_logs(
+    skip: int = 0,
+    limit: int = 50,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_super_admin)
+):
+    """
+    Get global audit logs (Super Admin only).
+    """
+    logs = db.query(AuditLog).order_by(
+        AuditLog.created_at.desc()
+    ).offset(skip).limit(limit).all()
+    
+    return logs
+
+
 @router.get("/{tenant_id}/analytics")
 async def get_tenant_analytics(
     tenant_id: str,
     period: str = "30d",
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_tenant_admin)
+    current_user: User = Depends(require_tenant_access)
 ):
     """
     Get analytics data for a tenant.
@@ -673,3 +771,5 @@ async def get_tenant_analytics(
         }
     finally:
         reset_tenant_context(db)
+
+

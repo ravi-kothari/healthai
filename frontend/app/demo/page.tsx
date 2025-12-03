@@ -12,7 +12,7 @@ import RiskStratification from '@/components/appoint-ready/RiskStratification';
 import CareGaps from '@/components/appoint-ready/CareGaps';
 import VisitDocumentation from '@/components/visit/VisitDocumentation';
 import { useAuthStore } from '@/lib/stores/authStore';
-import { User, Stethoscope, LogOut, FileText, FileAudio, LayoutDashboard } from 'lucide-react';
+import { User, Stethoscope, LogOut, FileText, FileAudio, LayoutDashboard, Brain, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -52,13 +52,13 @@ export default function DemoPage() {
                   Healthcare AI Demo
                 </h1>
                 <p className="text-sm text-gray-600">
-                  PreVisit.ai & Appoint-Ready Features
+                  MedGenie PreVisit & MedGenie Context Features
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <Link href="/dashboard">
-                <Button variant="default" size="sm">
+                <Button variant="primary" size="sm">
                   <LayoutDashboard className="h-4 w-4 mr-2" />
                   Go to Dashboard
                 </Button>
@@ -100,7 +100,7 @@ export default function DemoPage() {
             </TabsTrigger>
             <TabsTrigger value="appoint-ready" disabled={!isProvider}>
               <Stethoscope className="h-4 w-4 mr-2" />
-              Appoint-Ready
+              MedGenie AI
             </TabsTrigger>
           </TabsList>
 
@@ -108,7 +108,7 @@ export default function DemoPage() {
           <TabsContent value="previsit" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>PreVisit.ai - Patient Symptom Checker</CardTitle>
+                <CardTitle>MedGenie PreVisit - Patient Symptom Checker</CardTitle>
                 <CardDescription>
                   AI-powered symptom analysis and triage assessment for patients before their visit
                 </CardDescription>
@@ -151,7 +151,7 @@ export default function DemoPage() {
               <Card>
                 <CardContent className="py-12 text-center">
                   <p className="text-gray-600">
-                    Appoint-Ready features are only available to healthcare providers
+                    MedGenie AI features are only available to healthcare providers
                   </p>
                 </CardContent>
               </Card>
@@ -159,32 +159,33 @@ export default function DemoPage() {
               <>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Appoint-Ready - Provider Dashboard</CardTitle>
+                    <CardTitle>MedGenie AI - Provider Dashboard</CardTitle>
                     <CardDescription>
                       Comprehensive patient context, risk assessment, and care gaps for appointment preparation
                     </CardDescription>
                   </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 gap-6">
+                      {/* Patient Context */}
+                      <div>
+                        <h2 className="text-xl font-semibold mb-4">Patient Context</h2>
+                        <PatientContextCard patientId={selectedPatientId} />
+                      </div>
+
+                      {/* Risk Stratification */}
+                      <div>
+                        <h2 className="text-xl font-semibold mb-4">Risk Stratification</h2>
+                        <RiskStratification patientId={selectedPatientId} />
+                      </div>
+
+                      {/* Care Gaps */}
+                      <div>
+                        <h2 className="text-xl font-semibold mb-4">Care Gaps</h2>
+                        <CareGaps patientId={selectedPatientId} />
+                      </div>
+                    </div>
+                  </CardContent>
                 </Card>
-
-                <div className="grid grid-cols-1 gap-6">
-                  {/* Patient Context */}
-                  <div>
-                    <h2 className="text-xl font-semibold mb-4">Patient Context</h2>
-                    <PatientContextCard patientId={selectedPatientId} />
-                  </div>
-
-                  {/* Risk Stratification */}
-                  <div>
-                    <h2 className="text-xl font-semibold mb-4">Risk Stratification</h2>
-                    <RiskStratification patientId={selectedPatientId} />
-                  </div>
-
-                  {/* Care Gaps */}
-                  <div>
-                    <h2 className="text-xl font-semibold mb-4">Care Gaps</h2>
-                    <CareGaps patientId={selectedPatientId} />
-                  </div>
-                </div>
               </>
             )}
           </TabsContent>
@@ -195,7 +196,7 @@ export default function DemoPage() {
       <footer className="bg-white border-t border-gray-200 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-sm text-gray-600">
-            <p>AI Healthcare Application - Demo Environment</p>
+            <p>MedGenie - Demo Environment</p>
             <p className="mt-1">Docker-first development • Phase 0: Local Testing</p>
           </div>
         </div>

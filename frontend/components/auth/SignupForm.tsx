@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signupSchema, SignupFormValues } from '@/lib/validators/auth';
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 // Removed Radix UI Select - using native HTML select for practice type dropdown
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
@@ -18,6 +19,8 @@ import { useAuthStore } from '@/lib/stores/authStore';
 
 export const SignupForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const plan = searchParams.get('plan');
   const {
     register,
     handleSubmit,
@@ -108,8 +111,29 @@ export const SignupForm = () => {
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-lg">
       <CardHeader className="text-center space-y-2">
-        <CardTitle className="text-3xl font-bold">Get Started with SimplePractice</CardTitle>
+        <CardTitle className="text-3xl font-bold">Get Started with MedGeni</CardTitle>
         <CardDescription className="text-lg">Free for 30 days, no credit card required</CardDescription>
+        {plan && (
+          <div className="pt-2">
+            <Badge variant="secondary" className="text-sm px-3 py-1 capitalize">
+              Selected Plan: {plan}
+            </Badge>
+          </div>
+        )}
+        <div className="pt-4 flex justify-center gap-6 text-sm text-gray-600">
+          <div className="flex items-center gap-1">
+            <Check className="w-4 h-4 text-green-500" />
+            <span>All Features</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Check className="w-4 h-4 text-green-500" />
+            <span>Unlimited Patients</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Check className="w-4 h-4 text-green-500" />
+            <span>HIPAA Compliant</span>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -147,7 +171,7 @@ export const SignupForm = () => {
             <Input
               id="email"
               type="email"
-              placeholder="saasui@rakeshmondal.in"
+              placeholder="doctor@example.com"
               {...register('email')}
               className={`mt-1 ${errors.email ? 'border-red-500' : ''}`}
             />

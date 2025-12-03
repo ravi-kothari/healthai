@@ -139,7 +139,7 @@ export default function ProviderDashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">Appoint-Ready: Load Patient Context</h2>
+            <h2 className="text-xl font-semibold text-gray-900">MedGenie Context: Load Patient Context</h2>
           </div>
 
           <div className="flex gap-4">
@@ -237,11 +237,10 @@ export default function ProviderDashboard() {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as any)}
-                      className={`flex items-center px-6 py-3 text-sm font-medium border-b-2 transition ${
-                        activeTab === tab.id
+                      className={`flex items-center px-6 py-3 text-sm font-medium border-b-2 transition ${activeTab === tab.id
                           ? 'border-purple-600 text-purple-600'
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
+                        }`}
                     >
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} />
@@ -320,10 +319,10 @@ export default function ProviderDashboard() {
                     )}
 
                     {!context.medical_history?.conditions?.length &&
-                     !context.medical_history?.medications?.length &&
-                     !context.medical_history?.allergies?.length && (
-                      <p className="text-gray-500 text-center py-8">No medical history available</p>
-                    )}
+                      !context.medical_history?.medications?.length &&
+                      !context.medical_history?.allergies?.length && (
+                        <p className="text-gray-500 text-center py-8">No medical history available</p>
+                      )}
                   </div>
                 )}
 
