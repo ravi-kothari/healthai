@@ -84,7 +84,7 @@ export default function PlaceholderPage({
         <div className="mt-12 text-center">
           <p className="text-slate-500 text-sm">
             Have questions or feedback?{' '}
-            <a href="mailto:support@healthai.com" className="text-forest-600 hover:underline font-medium">
+            <a href="mailto:support@medgenie.ai" className="text-forest-600 hover:underline font-medium">
               Contact us
             </a>
           </p>

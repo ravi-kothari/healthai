@@ -87,7 +87,7 @@ export default function AdminLayout({
               <Heart className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="text-lg font-bold text-white">HealthAI</span>
+              <span className="text-lg font-bold text-white">MedGenie</span>
               <Badge variant="outline" size="sm" className="ml-2 border-emerald-500 text-emerald-400">
                 Admin
               </Badge>

@@ -111,8 +111,8 @@ export const SignupForm = () => {
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-lg">
       <CardHeader className="text-center space-y-2">
-        <CardTitle className="text-3xl font-bold">Get Started with MedGeni</CardTitle>
-        <CardDescription className="text-lg">Free for 30 days, no credit card required</CardDescription>
+        <CardTitle className="text-3xl font-bold">Get Started with MedGenie</CardTitle>
+        <CardDescription className="text-lg">Free for 14 days, no credit card required</CardDescription>
         {plan && (
           <div className="pt-2">
             <Badge variant="secondary" className="text-sm px-3 py-1 capitalize">
@@ -196,26 +196,26 @@ export const SignupForm = () => {
             {/* Password requirements */}
             <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
               <div className="flex items-center gap-2 text-sm">
-                <div className={`w-2 h-2 rounded-full ${hasLowercase ? 'bg-blue-600' : 'bg-gray-300'}`} />
-                <span className={hasLowercase ? 'text-blue-600' : 'text-gray-500'}>
+                <div className={`w-2 h-2 rounded-full ${hasLowercase ? 'bg-forest-600' : 'bg-gray-300'}`} />
+                <span className={hasLowercase ? 'text-forest-600' : 'text-gray-500'}>
                   One lowercase letter
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <div className={`w-2 h-2 rounded-full ${hasUppercase ? 'bg-blue-600' : 'bg-gray-300'}`} />
-                <span className={hasUppercase ? 'text-blue-600' : 'text-gray-500'}>
+                <div className={`w-2 h-2 rounded-full ${hasUppercase ? 'bg-forest-600' : 'bg-gray-300'}`} />
+                <span className={hasUppercase ? 'text-forest-600' : 'text-gray-500'}>
                   One uppercase letter
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <div className={`w-2 h-2 rounded-full ${hasNumber ? 'bg-blue-600' : 'bg-gray-300'}`} />
-                <span className={hasNumber ? 'text-blue-600' : 'text-gray-500'}>
+                <div className={`w-2 h-2 rounded-full ${hasNumber ? 'bg-forest-600' : 'bg-gray-300'}`} />
+                <span className={hasNumber ? 'text-forest-600' : 'text-gray-500'}>
                   One number
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <div className={`w-2 h-2 rounded-full ${hasMinLength ? 'bg-blue-600' : 'bg-gray-300'}`} />
-                <span className={hasMinLength ? 'text-blue-600' : 'text-gray-500'}>
+                <div className={`w-2 h-2 rounded-full ${hasMinLength ? 'bg-forest-600' : 'bg-gray-300'}`} />
+                <span className={hasMinLength ? 'text-forest-600' : 'text-gray-500'}>
                   8 characters min
                 </span>
               </div>
@@ -248,7 +248,7 @@ export const SignupForm = () => {
             <select
               id="practiceType"
               {...register('practiceType')}
-              className={`mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.practiceType ? 'border-red-500' : ''}`}
+              className={`mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-forest-500 focus:border-forest-500 ${errors.practiceType ? 'border-red-500' : ''}`}
             >
               <option value="">Select One</option>
               {practiceTypes.map((type) => (
@@ -279,15 +279,15 @@ export const SignupForm = () => {
             <div className="flex-1">
               <label htmlFor="agreement" className="text-sm text-gray-700 leading-tight cursor-pointer">
                 On behalf of myself and the practice, I agree to the{' '}
-                <Link href="/baa" className="text-blue-600 hover:underline">
+                <Link href="/baa" className="text-forest-600 hover:underline">
                   Business Associate Agreement
                 </Link>
                 , the{' '}
-                <Link href="/terms" className="text-blue-600 hover:underline">
+                <Link href="/terms" className="text-forest-600 hover:underline">
                   Terms of Service
                 </Link>
                 , and the{' '}
-                <Link href="/privacy" className="text-blue-600 hover:underline">
+                <Link href="/privacy" className="text-forest-600 hover:underline">
                   Privacy Policy
                 </Link>{' '}
                 for my account.

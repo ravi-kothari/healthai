@@ -32,7 +32,11 @@ import {
   Sparkles,
   Lock,
   Smartphone,
-  Globe
+  Globe,
+  MessageCircle,
+  HelpCircle,
+  Mic,
+  Award
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -71,7 +75,7 @@ export default function LandingPage() {
               <div className="w-10 h-10 bg-gradient-forest rounded-lg flex items-center justify-center">
                 <Heart className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-slate-900">HealthAI</span>
+              <span className="text-xl font-bold text-slate-900">MedGenie</span>
             </Link>
 
             {/* Navigation Links with Dropdowns - Hidden on mobile */}
@@ -249,8 +253,8 @@ export default function LandingPage() {
               <Link href="#pricing" className="px-4 py-2 text-slate-600 hover:text-forest-600 transition-colors font-medium rounded-lg hover:bg-forest-50">
                 Pricing
               </Link>
-              <Link href="#roadmap" className="px-4 py-2 text-slate-600 hover:text-forest-600 transition-colors font-medium rounded-lg hover:bg-forest-50">
-                Roadmap
+              <Link href="/community" className="px-4 py-2 text-slate-600 hover:text-forest-600 transition-colors font-medium rounded-lg hover:bg-forest-50">
+                Community
               </Link>
 
               {/* Resources Dropdown */}
@@ -314,17 +318,17 @@ export default function LandingPage() {
             {/* Left Content */}
             <div className="text-center lg:text-left">
               <Badge variant="primary" size="lg" className="mb-6">
-                AI-Powered Healthcare Platform
+                AI-Powered Clinical Documentation
               </Badge>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight">
-                Transform Patient Care with{' '}
-                <span className="text-forest-600">Intelligent Preparation</span>
+                Get Time Back.{' '}
+                <span className="text-forest-600">Focus on Care.</span>
               </h1>
 
               <p className="text-lg sm:text-xl text-slate-600 mb-8 max-w-2xl">
-                Empower patients with AI-driven symptom analysis and equip providers with comprehensive
-                appointment context—all before the visit begins.
+                AI-powered documentation that works the way you do. Spend less time charting,
+                more time with patients. Patient-centered, physician-driven.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -355,66 +359,12 @@ export default function LandingPage() {
 
             {/* Right Visual */}
             <div className="relative">
-              <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-8 transform hover:scale-105 transition-transform duration-300">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h3 className="font-semibold text-slate-900">Next Appointment</h3>
-                    <p className="text-sm text-slate-600">John Doe - 2:30 PM Today</p>
-                  </div>
-                  <Badge variant="success">CarePrep Complete</Badge>
-                </div>
-                <div className="p-6 bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">MedGenie PreVisit</h3>
-                  <p className="text-slate-600">
-                    Automated patient intake and symptom analysis before the visit begins.
-                  </p>
-                </div>
-
-                <div className="p-6 bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">MedGenie Context</h3>
-                  <p className="text-slate-600">
-                    Real-time clinical context and care gap detection for providers.
-                  </p>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Brain className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-900">AI Analysis Complete</p>
-                      <p className="text-sm text-slate-600">Moderate urgency, follow-up needed</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                      <Activity className="w-5 h-5 text-amber-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-900">3 Care Gaps Detected</p>
-                      <p className="text-sm text-slate-600">Preventive screenings overdue</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                      <Heart className="w-5 h-5 text-emerald-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-900">Risk Score: Moderate</p>
-                      <p className="text-sm text-slate-600">Cardiovascular & diabetes factors</p>
-                    </div>
-                  </div>
-                </div>
+              <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-4 transform hover:scale-105 transition-transform duration-300 overflow-hidden">
+                <img
+                  src="/images/hero-illustration.png"
+                  alt="MedGenie AI-powered clinical documentation"
+                  className="w-full h-auto rounded-xl"
+                />
               </div>
               {/* Decorative element */}
               <div className="absolute -bottom-6 -right-6 w-full h-full bg-gradient-forest rounded-2xl -z-10"></div>
@@ -431,7 +381,7 @@ export default function LandingPage() {
               { number: '85%', label: 'Reduction in Pre-Visit Admin Time' },
               { number: '4.2min', label: 'Average Time Saved Per Appointment' },
               { number: '92%', label: 'Patient Satisfaction Score' },
-              { number: '50k+', label: 'Successful Patient Encounters' },
+              { number: '50k+', label: 'Successful Patient Visits' },
             ].map((stat, idx) => (
               <div key={idx} className="text-center">
                 <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-forest-500 mb-2">
@@ -485,35 +435,15 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Right Visual - Phone Mockup */}
+            {/* Right Visual - Illustration */}
             <div className="relative">
-              <Card variant="elevated" className="transform hover:scale-105 transition-transform duration-300">
-                <CardContent className="p-8">
-                  <div className="mb-6">
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Symptom Analysis</h3>
-                    <Badge variant="warning">In Progress</Badge>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="p-4 bg-cream-50 rounded-lg">
-                      <p className="text-sm font-medium text-slate-900 mb-1">Primary Symptom</p>
-                      <p className="text-slate-600">Persistent headache - 3 days</p>
-                    </div>
-                    <div className="p-4 bg-cream-50 rounded-lg">
-                      <p className="text-sm font-medium text-slate-900 mb-1">Severity</p>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-slate-200 rounded-full h-2">
-                          <div className="bg-amber-500 h-2 rounded-full" style={{ width: '60%' }}></div>
-                        </div>
-                        <span className="text-sm text-slate-600">Moderate</span>
-                      </div>
-                    </div>
-                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="text-sm font-medium text-blue-900 mb-1">AI Recommendation</p>
-                      <p className="text-sm text-blue-700">Schedule appointment with primary care within 3-5 days</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="bg-white rounded-2xl shadow-xl p-4 transform hover:scale-105 transition-transform duration-300">
+                <img
+                  src="/images/careprep-illustration.png"
+                  alt="CarePrep - AI-powered patient symptom analysis"
+                  className="w-full h-auto rounded-xl"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -523,38 +453,15 @@ export default function LandingPage() {
       <section id="contextai" className="py-20 sm:py-32 bg-cream-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left Visual - Desktop Mockup */}
+            {/* Left Visual - Illustration */}
             <div className="order-2 lg:order-1 relative">
-              <Card variant="elevated" className="transform hover:scale-105 transition-transform duration-300">
-                <CardContent className="p-8">
-                  <div className="mb-6">
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Patient Context Dashboard</h3>
-                    <p className="text-sm text-slate-600">John Doe - MRN: 123456</p>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
-                      <span className="text-sm font-medium text-emerald-900">CarePrep Complete</span>
-                      <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
-                      <span className="text-sm font-medium text-amber-900">3 Care Gaps</span>
-                      <Badge variant="warning" size="sm">Action Needed</Badge>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                      <span className="text-sm font-medium text-red-900">Diabetes Risk: Moderate</span>
-                      <Badge variant="danger" size="sm">15.0</Badge>
-                    </div>
-                    <div className="p-4 bg-slate-50 rounded-lg">
-                      <p className="text-xs font-medium text-slate-500 uppercase mb-2">Recent Activity</p>
-                      <div className="space-y-2 text-sm text-slate-700">
-                        <p>• Last visit: 2 weeks ago</p>
-                        <p>• Lab results: Within normal range</p>
-                        <p>• Medications: 2 active prescriptions</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="bg-white rounded-2xl shadow-xl p-4 transform hover:scale-105 transition-transform duration-300">
+                <img
+                  src="/images/contextai-illustration.png"
+                  alt="ContextAI - Provider dashboard and clinical context"
+                  className="w-full h-auto rounded-xl"
+                />
+              </div>
             </div>
 
             {/* Right Content */}
@@ -602,33 +509,52 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
-              How It Works
+              Your Clinical Journey
             </h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              Three simple steps to transform your healthcare delivery with AI-powered preparation
+              MedGenie supports you before, during, and after every patient visit
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-5 gap-6">
             {[
               {
                 step: '01',
-                title: 'Patient Completes CarePrep',
-                description: 'Patients answer AI-guided questions about their symptoms and health concerns before their appointment',
+                phase: 'Before',
+                title: 'Pre-Visit Questionnaire',
+                description: 'Clinical team sends a questionnaire based on appointment reason',
                 icon: Clipboard,
                 color: 'blue',
               },
               {
                 step: '02',
-                title: 'AI Analyzes & Prepares Context',
-                description: 'Our system builds comprehensive appointment context, detecting care gaps and calculating risk scores',
-                icon: Brain,
-                color: 'forest',
+                phase: 'Before',
+                title: 'Physician Reviews',
+                description: 'Review patient-submitted information ahead of the visit',
+                icon: FileText,
+                color: 'blue',
               },
               {
                 step: '03',
-                title: 'Provider Reviews & Delivers Care',
-                description: 'Doctors walk in fully prepared with actionable insights and comprehensive patient context',
+                phase: 'During',
+                title: 'Ambient AI Listening',
+                description: 'AI captures the conversation so you can focus on the patient',
+                icon: Mic,
+                color: 'forest',
+              },
+              {
+                step: '04',
+                phase: 'After',
+                title: 'AI Summary',
+                description: 'AI-generated summary ready for your review and signature',
+                icon: Brain,
+                color: 'emerald',
+              },
+              {
+                step: '05',
+                phase: 'After',
+                title: 'Patient Summary',
+                description: 'After-visit summary automatically shared with the patient',
                 icon: Heart,
                 color: 'emerald',
               },
@@ -641,12 +567,13 @@ export default function LandingPage() {
 
                 <Card variant="elevated" className="relative z-10 h-full hover:scale-105 transition-transform duration-300">
                   <CardContent className="p-8 text-center">
-                    <div className={`w-16 h-16 bg-${step.color}-100 rounded-full flex items-center justify-center mx-auto mb-4`}>
-                      <step.icon className={`w-8 h-8 text-${step.color}-600`} />
+                    <div className={`w-14 h-14 bg-${step.color}-100 rounded-full flex items-center justify-center mx-auto mb-3`}>
+                      <step.icon className={`w-7 h-7 text-${step.color}-600`} />
                     </div>
-                    <div className="text-4xl font-bold text-forest-600 mb-4">{step.step}</div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-3">{step.title}</h3>
-                    <p className="text-slate-600">{step.description}</p>
+                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{step.phase}</div>
+                    <div className="text-2xl font-bold text-forest-600 mb-2">{step.step}</div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">{step.title}</h3>
+                    <p className="text-sm text-slate-600">{step.description}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -660,50 +587,50 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
-              Why Healthcare Teams Choose Us
+              Why Physicians Choose MedGenie
             </h2>
             <p className="text-lg text-slate-600">
-              Powerful features designed for modern healthcare delivery
+              Built for the demands of modern clinical practice
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
-                icon: Clock,
-                title: 'Save Time',
-                description: 'Reduce pre-visit admin by 85% and focus on what matters most—patient care',
+                icon: Zap,
+                title: 'Fast Implementation',
+                description: 'Up and running in hours with streamlined onboarding—not weeks',
                 color: 'blue',
               },
               {
-                icon: Heart,
-                title: 'Improve Care',
-                description: 'Better patient outcomes with comprehensive context and AI-powered insights',
-                color: 'red',
+                icon: FileText,
+                title: 'Reduced Documentation',
+                description: 'Spend less time charting and more time caring for patients',
+                color: 'forest',
               },
               {
-                icon: Star,
-                title: 'Enhance Experience',
-                description: '92% patient satisfaction improvement with streamlined preparation',
+                icon: TrendingUp,
+                title: 'Increased Productivity',
+                description: 'Decreased documentation time enables more patient visits per day',
+                color: 'emerald',
+              },
+              {
+                icon: Clock,
+                title: 'Work-Life Balance',
+                description: 'Less after-hours charting supports clinician well-being',
                 color: 'amber',
+              },
+              {
+                icon: Globe,
+                title: 'Multilingual Support',
+                description: 'Available in multiple languages with more coming soon',
+                color: 'purple',
               },
               {
                 icon: Shield,
                 title: 'HIPAA Compliant',
                 description: 'Bank-grade security and compliance built into every feature',
                 color: 'green',
-              },
-              {
-                icon: Zap,
-                title: 'Easy Integration',
-                description: 'Seamless FHIR integration with existing EHRs and healthcare systems',
-                color: 'purple',
-              },
-              {
-                icon: Brain,
-                title: 'AI-Powered',
-                description: 'Cutting-edge Azure OpenAI technology for intelligent analysis',
-                color: 'forest',
               },
             ].map((benefit, idx) => (
               <Card key={idx} variant="interactive" className="group">
@@ -720,12 +647,118 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section className="py-20 sm:py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
+              Trusted by Physicians
+            </h2>
+            <p className="text-lg text-slate-600">
+              Hear from clinicians who have transformed their practice with MedGenie
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                quote: "MedGenie has cut my documentation time in half. I'm finally leaving the office on time.",
+                name: "Dr. Sarah Chen",
+                specialty: "Family Medicine",
+                initials: "SC",
+              },
+              {
+                quote: "The pre-visit questionnaire means I walk into every appointment fully prepared. My patients notice the difference.",
+                name: "Dr. Michael Torres",
+                specialty: "Internal Medicine",
+                initials: "MT",
+              },
+              {
+                quote: "My patients love the after-visit summaries. It's improved their understanding and treatment adherence.",
+                name: "Dr. Priya Patel",
+                specialty: "Pediatrics",
+                initials: "PP",
+              },
+            ].map((testimonial, idx) => (
+              <Card key={idx} variant="elevated" className="h-full">
+                <CardContent className="p-8">
+                  <div className="flex mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 text-amber-400 fill-amber-400" />
+                    ))}
+                  </div>
+                  <p className="text-slate-700 mb-6 italic">"{testimonial.quote}"</p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-forest-100 rounded-full flex items-center justify-center">
+                      <span className="text-forest-600 font-semibold">{testimonial.initials}</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-900">{testimonial.name}</p>
+                      <p className="text-sm text-slate-600">{testimonial.specialty}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 sm:py-32 bg-slate-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-lg text-slate-600">
+              Everything you need to know about getting started with MedGenie
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {[
+              {
+                question: "How long does setup take?",
+                answer: "Most physicians are up and running within 2 hours. Our streamlined onboarding process guides you through EHR integration, customizing questionnaires, and training your staff.",
+              },
+              {
+                question: "Is MedGenie HIPAA compliant?",
+                answer: "Yes, absolutely. We use 256-bit encryption, maintain SOC 2 Type II compliance, and provide Business Associate Agreements (BAAs) for all customers.",
+              },
+              {
+                question: "What EHRs do you integrate with?",
+                answer: "MedGenie integrates with Epic, Cerner, Athena, eClinicalWorks, and many other EHR systems via FHIR R4. Contact us for specific compatibility questions.",
+              },
+              {
+                question: "Can I try before committing?",
+                answer: "Yes! We offer a 14-day free trial with full access to all features. No credit card required to start.",
+              },
+            ].map((faq, idx) => (
+              <Card key={idx} variant="interactive" className="overflow-hidden">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-8 h-8 bg-forest-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <HelpCircle className="w-4 h-4 text-forest-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-900 mb-2">{faq.question}</h3>
+                      <p className="text-slate-600">{faq.answer}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Pricing Section - SaaS Plans */}
       <section id="pricing" className="py-20 sm:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge variant="primary" size="lg" className="mb-4">
-              Flexible Pricing
+              Per-Clinician Pricing
             </Badge>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
               Choose the Plan That Fits Your Practice
@@ -745,7 +778,7 @@ export default function LandingPage() {
                 </div>
                 <div className="mb-6">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold text-slate-900">$299</span>
+                    <span className="text-4xl font-bold text-slate-900">$49</span>
                     <span className="text-slate-600">/month</span>
                   </div>
                   <p className="text-sm text-slate-500 mt-1">Up to 100 patients/month</p>
@@ -781,12 +814,12 @@ export default function LandingPage() {
               </div>
               <CardContent className="p-8">
                 <div className="mb-6">
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Professional</h3>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Pro</h3>
                   <p className="text-slate-600">For growing practices</p>
                 </div>
                 <div className="mb-6">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold text-forest-600">$599</span>
+                    <span className="text-4xl font-bold text-forest-600">$99</span>
                     <span className="text-slate-600">/month</span>
                   </div>
                   <p className="text-sm text-slate-500 mt-1">Up to 500 patients/month</p>
@@ -830,7 +863,7 @@ export default function LandingPage() {
                 </div>
                 <ul className="space-y-3 mb-8">
                   {[
-                    'Everything in Professional',
+                    'Everything in Pro',
                     'Dedicated account manager',
                     'Custom AI model training',
                     'Advanced analytics',
@@ -898,42 +931,42 @@ export default function LandingPage() {
                 icon: Smartphone,
                 title: 'Mobile Apps',
                 description: 'Native iOS and Android apps for patients and providers with offline support',
-                timeline: 'Q2 2025',
+                timeline: 'Q1 2026',
                 status: 'In Development',
-              },
-              {
-                icon: Brain,
-                title: 'Advanced AI Diagnostics',
-                description: 'Multi-modal AI analysis including imaging, labs, and clinical notes',
-                timeline: 'Q3 2025',
-                status: 'Planning',
-              },
-              {
-                icon: Activity,
-                title: 'Real-time Vitals Integration',
-                description: 'Connect wearables and IoT devices for continuous patient monitoring',
-                timeline: 'Q3 2025',
-                status: 'Planning',
               },
               {
                 icon: Users,
                 title: 'Team Collaboration',
                 description: 'Multi-provider workflows with real-time collaboration and handoffs',
-                timeline: 'Q4 2025',
-                status: 'Research',
+                timeline: 'Q2 2026',
+                status: 'Planning',
               },
               {
                 icon: BarChart,
                 title: 'Advanced Analytics',
-                description: 'Population health insights, outcome tracking, and performance dashboards',
-                timeline: 'Q4 2025',
-                status: 'Research',
+                description: 'Practice insights, outcome tracking, and performance dashboards',
+                timeline: 'Q2 2026',
+                status: 'Planning',
               },
               {
                 icon: Globe,
                 title: 'Multi-language Support',
                 description: 'AI-powered translation supporting 50+ languages for global healthcare',
-                timeline: 'Q1 2026',
+                timeline: 'Q3 2026',
+                status: 'Research',
+              },
+              {
+                icon: Calendar,
+                title: 'Smart Scheduling',
+                description: 'AI-optimized scheduling to reduce no-shows and improve patient flow',
+                timeline: 'Q3 2026',
+                status: 'Research',
+              },
+              {
+                icon: Award,
+                title: 'Quality Reporting',
+                description: 'Automated MIPS/MACRA quality measure reporting and compliance',
+                timeline: 'Q4 2026',
                 status: 'Research',
               },
             ].map((feature, idx) => (
@@ -965,7 +998,7 @@ export default function LandingPage() {
             <Button
               variant="outline"
               size="lg"
-              className="border-2 border-white text-white hover:bg-white/10"
+              className="bg-white text-forest-700 border-white hover:bg-white/90"
               rightIcon={<ArrowRight className="w-5 h-5" />}
             >
               Submit Feature Request
@@ -1003,7 +1036,7 @@ export default function LandingPage() {
               <Button
                 variant="outline"
                 size="xl"
-                className="border-2 border-white text-white hover:bg-white/10"
+                className="bg-white text-forest-700 border-white hover:bg-white/90"
               >
                 Schedule Demo
               </Button>
@@ -1026,10 +1059,10 @@ export default function LandingPage() {
                 <div className="w-10 h-10 bg-gradient-forest rounded-lg flex items-center justify-center">
                   <Heart className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xl font-bold">HealthAI</span>
+                <span className="text-xl font-bold">MedGenie</span>
               </div>
               <p className="text-slate-400 text-sm">
-                AI-powered healthcare platform for intelligent patient preparation and provider efficiency.
+                AI-powered clinical documentation that helps physicians focus on patient care.
               </p>
             </div>
 
@@ -1070,7 +1103,7 @@ export default function LandingPage() {
           {/* Bottom Bar */}
           <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-slate-400 text-sm">
-              © 2025 HealthAI. All rights reserved.
+              © 2026 MedGenie. All rights reserved.
             </p>
             <div className="flex items-center gap-4 text-sm text-slate-400">
               <span className="flex items-center gap-2">

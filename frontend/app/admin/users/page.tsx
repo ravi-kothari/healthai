@@ -133,7 +133,7 @@ const mockUsers: User[] = [
     name: 'Platform Admin',
     email: 'admin@healthai.com',
     role: 'super_admin',
-    organization: 'HealthAI Platform',
+    organization: 'MedGenie Platform',
     organizationId: '0',
     status: 'active',
     lastLogin: 'Just now',
@@ -393,7 +393,7 @@ export default function UsersPage() {
                         <Badge
                           variant={
                             user.status === 'active' ? 'success' :
-                            user.status === 'pending' ? 'warning' : 'destructive'
+                              user.status === 'pending' ? 'warning' : 'destructive'
                           }
                           size="sm"
                         >

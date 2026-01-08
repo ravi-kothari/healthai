@@ -5,7 +5,7 @@ export default function ROICalculatorPage() {
   return (
     <PlaceholderPage
       title="ROI Calculator"
-      description="Calculate your potential time and cost savings with HealthAI. See the financial impact on your practice."
+      description="Calculate your potential time and cost savings with MedGenie. See the financial impact on your practice."
       icon={DollarSign}
     />
   );
