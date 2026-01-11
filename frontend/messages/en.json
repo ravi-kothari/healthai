@@ -1,0 +1,183 @@
+{
+    "common": {
+        "appName": "MedGenie",
+        "login": "Login",
+        "signup": "Sign Up",
+        "startFreeTrial": "Start Free Trial",
+        "watchDemo": "Watch Demo",
+        "contactUs": "Contact Us",
+        "learnMore": "Learn More",
+        "getStarted": "Get Started",
+        "scheduleDemo": "Schedule Demo",
+        "backToHome": "Back to Home"
+    },
+    "nav": {
+        "features": "Features",
+        "howItWorks": "How It Works",
+        "pricing": "Pricing",
+        "security": "Security",
+        "community": "Community"
+    },
+    "hero": {
+        "badge": "AI-Powered Documentation",
+        "title": "Get Time Back. Focus on Care.",
+        "description": "AI-powered clinical documentation that reduces charting time by 50%. Spend less time typing, more time healing.",
+        "hipaaCompliant": "HIPAA Compliant",
+        "fhirCompatible": "FHIR Compatible"
+    },
+    "stats": {
+        "lessDocTime": "Less Documentation Time",
+        "activeProviders": "Active Providers",
+        "patientVisits": "Patient Visits Documented",
+        "satisfaction": "Provider Satisfaction"
+    },
+    "features": {
+        "sectionTitle": "Everything You Need",
+        "sectionDescription": "Powerful AI tools designed specifically for clinical workflows",
+        "transcribe": {
+            "title": "Transcribe & Dictate",
+            "description": "Real-time medical transcription that understands clinical terminology and formats notes automatically."
+        },
+        "aiAssistant": {
+            "title": "AI Assistant",
+            "description": "Get smart suggestions, coding recommendations, and decision support right in your workflow."
+        },
+        "templates": {
+            "title": "Clinical Templates",
+            "description": "Pre-built templates for common visit types, customizable to match your documentation style."
+        },
+        "context": {
+            "title": "Patient Context",
+            "description": "Instant access to patient history, allergies, medications, and care gaps before each visit."
+        },
+        "tasks": {
+            "title": "Smart Tasks",
+            "description": "AI-generated follow-up tasks, referral tracking, and automated reminders."
+        },
+        "multilingual": {
+            "title": "Multilingual",
+            "description": "Support for multiple languages to serve diverse patient populations."
+        }
+    },
+    "howItWorks": {
+        "sectionTitle": "The Clinical Journey",
+        "sectionDescription": "Seamlessly integrated into every phase of patient care",
+        "steps": {
+            "preVisit": {
+                "phase": "Before",
+                "title": "Patient Pre-Visit",
+                "description": "Patients complete intake forms via SMS or WhatsApp"
+            },
+            "context": {
+                "phase": "Before",
+                "title": "Context Ready",
+                "description": "AI prepares patient summary with history and care gaps"
+            },
+            "documentation": {
+                "phase": "During",
+                "title": "Live Documentation",
+                "description": "Ambient AI captures the conversation in real-time"
+            },
+            "review": {
+                "phase": "After",
+                "title": "Review & Sign",
+                "description": "One-click review and sign-off on AI-generated notes"
+            },
+            "followUp": {
+                "phase": "After",
+                "title": "Follow-up",
+                "description": "Automated patient summaries and task creation"
+            }
+        }
+    },
+    "pricing": {
+        "sectionTitle": "Per-Clinician Pricing",
+        "sectionDescription": "Simple, transparent pricing that scales with your practice",
+        "starter": {
+            "name": "Starter",
+            "price": "$49",
+            "period": "/month",
+            "perClinician": "Per clinician",
+            "features": [
+                "Up to 100 patient visits/month",
+                "AI transcription",
+                "Basic templates",
+                "Email support"
+            ]
+        },
+        "pro": {
+            "name": "Pro",
+            "price": "$99",
+            "period": "/month",
+            "perClinician": "Per clinician",
+            "popular": "Most Popular",
+            "features": [
+                "Unlimited patient visits",
+                "AI assistant & coding",
+                "Custom templates",
+                "EHR integration",
+                "Priority support"
+            ]
+        },
+        "enterprise": {
+            "name": "Enterprise",
+            "price": "Custom",
+            "perClinician": "For health systems",
+            "features": [
+                "Unlimited everything",
+                "SSO & advanced security",
+                "Custom AI training",
+                "Dedicated support",
+                "SLA guarantee"
+            ]
+        }
+    },
+    "cta": {
+        "title": "Ready to Transform Your Practice?",
+        "description": "Join thousands of providers delivering better care with AI-powered documentation",
+        "noCreditCard": "No credit card required",
+        "freeTrial": "14-day free trial",
+        "cancelAnytime": "Cancel anytime"
+    },
+    "footer": {
+        "tagline": "AI-powered clinical documentation that helps physicians focus on patient care.",
+        "product": "Product",
+        "solutions": "Solutions",
+        "resources": "Resources",
+        "company": "Company",
+        "forPractices": "For Practices",
+        "forHospitals": "For Hospitals",
+        "partners": "Partners",
+        "guides": "Guides",
+        "changelog": "Changelog",
+        "roiCalculator": "ROI Calculator",
+        "support": "Support",
+        "copyright": "© 2026 MedGenie. All rights reserved.",
+        "hipaaCompliant": "HIPAA Compliant",
+        "soc2": "SOC 2 Type II",
+        "fhirR4": "FHIR R4"
+    },
+    "auth": {
+        "welcomeBack": "Welcome back",
+        "signInToAccess": "Sign in to access your MedGenie account",
+        "createAccount": "Create Account",
+        "joinMedGenie": "Join MedGenie today",
+        "alreadyHaveAccount": "Already have an account?",
+        "dontHaveAccount": "Don't have an account?",
+        "signIn": "Sign In",
+        "startYourFreeTrial": "Start your free trial",
+        "fullName": "Full Name",
+        "email": "Email",
+        "username": "Username",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "accountType": "Account Type",
+        "patient": "Patient",
+        "healthcareProvider": "Healthcare Provider",
+        "protectedByHipaa": "Protected by HIPAA-compliant security",
+        "agreeToTerms": "By registering, you agree to our",
+        "termsOfService": "Terms of Service",
+        "and": "and",
+        "privacyPolicy": "Privacy Policy"
+    }
+}

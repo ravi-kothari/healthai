@@ -1,0 +1,183 @@
+{
+    "common": {
+        "appName": "MedGenie",
+        "login": "Connexion",
+        "signup": "S'inscrire",
+        "startFreeTrial": "Commencer l'essai gratuit",
+        "watchDemo": "Voir la démo",
+        "contactUs": "Nous contacter",
+        "learnMore": "En savoir plus",
+        "getStarted": "Commencer",
+        "scheduleDemo": "Planifier une démo",
+        "backToHome": "Retour à l'accueil"
+    },
+    "nav": {
+        "features": "Fonctionnalités",
+        "howItWorks": "Comment ça marche",
+        "pricing": "Tarification",
+        "security": "Sécurité",
+        "community": "Communauté"
+    },
+    "hero": {
+        "badge": "Documentation alimentée par l'IA",
+        "title": "Récupérez du temps. Concentrez-vous sur les soins.",
+        "description": "Documentation clinique alimentée par l'IA qui réduit le temps de charting de 50%. Moins de frappe, plus de guérison.",
+        "hipaaCompliant": "Conforme HIPAA",
+        "fhirCompatible": "Compatible FHIR"
+    },
+    "stats": {
+        "lessDocTime": "Moins de temps de documentation",
+        "activeProviders": "Praticiens actifs",
+        "patientVisits": "Visites de patients documentées",
+        "satisfaction": "Satisfaction des praticiens"
+    },
+    "features": {
+        "sectionTitle": "Tout ce dont vous avez besoin",
+        "sectionDescription": "Outils IA puissants conçus spécifiquement pour les flux de travail cliniques",
+        "transcribe": {
+            "title": "Transcrire et Dicter",
+            "description": "Transcription médicale en temps réel qui comprend la terminologie clinique et formate automatiquement les notes."
+        },
+        "aiAssistant": {
+            "title": "Assistant IA",
+            "description": "Obtenez des suggestions intelligentes, des recommandations de codage et un support décisionnel directement dans votre flux de travail."
+        },
+        "templates": {
+            "title": "Modèles cliniques",
+            "description": "Modèles prédéfinis pour les types de visites courants, personnalisables selon votre style de documentation."
+        },
+        "context": {
+            "title": "Contexte patient",
+            "description": "Accès instantané à l'historique du patient, allergies, médicaments et lacunes de soins avant chaque visite."
+        },
+        "tasks": {
+            "title": "Tâches intelligentes",
+            "description": "Tâches de suivi générées par l'IA, suivi des références et rappels automatisés."
+        },
+        "multilingual": {
+            "title": "Multilingue",
+            "description": "Support de plusieurs langues pour servir des populations de patients diverses."
+        }
+    },
+    "howItWorks": {
+        "sectionTitle": "Le parcours clinique",
+        "sectionDescription": "Intégré de manière transparente à chaque phase des soins aux patients",
+        "steps": {
+            "preVisit": {
+                "phase": "Avant",
+                "title": "Pré-visite patient",
+                "description": "Les patients remplissent les formulaires d'admission par SMS ou courriel"
+            },
+            "context": {
+                "phase": "Avant",
+                "title": "Contexte prêt",
+                "description": "L'IA prépare le résumé du patient avec l'historique et les lacunes de soins"
+            },
+            "documentation": {
+                "phase": "Pendant",
+                "title": "Documentation en direct",
+                "description": "L'IA ambiante capture la conversation en temps réel"
+            },
+            "review": {
+                "phase": "Après",
+                "title": "Réviser et signer",
+                "description": "Révision et signature en un clic sur les notes générées par l'IA"
+            },
+            "followUp": {
+                "phase": "Après",
+                "title": "Suivi",
+                "description": "Résumés automatiques pour les patients et création de tâches"
+            }
+        }
+    },
+    "pricing": {
+        "sectionTitle": "Tarification par clinicien",
+        "sectionDescription": "Tarification simple et transparente qui évolue avec votre pratique",
+        "starter": {
+            "name": "Débutant",
+            "price": "65 $",
+            "period": "/mois",
+            "perClinician": "Par clinicien",
+            "features": [
+                "Jusqu'à 100 visites de patients/mois",
+                "Transcription IA",
+                "Modèles de base",
+                "Support par courriel"
+            ]
+        },
+        "pro": {
+            "name": "Pro",
+            "price": "130 $",
+            "period": "/mois",
+            "perClinician": "Par clinicien",
+            "popular": "Plus populaire",
+            "features": [
+                "Visites de patients illimitées",
+                "Assistant IA et codage",
+                "Modèles personnalisés",
+                "Intégration DME",
+                "Support prioritaire"
+            ]
+        },
+        "enterprise": {
+            "name": "Entreprise",
+            "price": "Personnalisé",
+            "perClinician": "Pour les systèmes de santé",
+            "features": [
+                "Tout illimité",
+                "SSO et sécurité avancée",
+                "Formation IA personnalisée",
+                "Support dédié",
+                "Garantie SLA"
+            ]
+        }
+    },
+    "cta": {
+        "title": "Prêt à transformer votre pratique?",
+        "description": "Rejoignez des milliers de praticiens offrant de meilleurs soins avec une documentation alimentée par l'IA",
+        "noCreditCard": "Aucune carte de crédit requise",
+        "freeTrial": "Essai gratuit de 14 jours",
+        "cancelAnytime": "Annulez à tout moment"
+    },
+    "footer": {
+        "tagline": "Documentation clinique alimentée par l'IA qui aide les médecins à se concentrer sur les soins aux patients.",
+        "product": "Produit",
+        "solutions": "Solutions",
+        "resources": "Ressources",
+        "company": "Entreprise",
+        "forPractices": "Pour les pratiques",
+        "forHospitals": "Pour les hôpitaux",
+        "partners": "Partenaires",
+        "guides": "Guides",
+        "changelog": "Journal des modifications",
+        "roiCalculator": "Calculateur ROI",
+        "support": "Support",
+        "copyright": "© 2026 MedGenie. Tous droits réservés.",
+        "hipaaCompliant": "Conforme HIPAA",
+        "soc2": "SOC 2 Type II",
+        "fhirR4": "FHIR R4"
+    },
+    "auth": {
+        "welcomeBack": "Bienvenue",
+        "signInToAccess": "Connectez-vous pour accéder à votre compte MedGenie",
+        "createAccount": "Créer un compte",
+        "joinMedGenie": "Rejoignez MedGenie aujourd'hui",
+        "alreadyHaveAccount": "Vous avez déjà un compte?",
+        "dontHaveAccount": "Vous n'avez pas de compte?",
+        "signIn": "Se connecter",
+        "startYourFreeTrial": "Commencez votre essai gratuit",
+        "fullName": "Nom complet",
+        "email": "Courriel",
+        "username": "Nom d'utilisateur",
+        "password": "Mot de passe",
+        "confirmPassword": "Confirmer le mot de passe",
+        "accountType": "Type de compte",
+        "patient": "Patient",
+        "healthcareProvider": "Professionnel de la santé",
+        "protectedByHipaa": "Protégé par une sécurité conforme HIPAA",
+        "agreeToTerms": "En vous inscrivant, vous acceptez nos",
+        "termsOfService": "Conditions d'utilisation",
+        "and": "et",
+        "privacyPolicy": "Politique de confidentialité"
+    }
+}

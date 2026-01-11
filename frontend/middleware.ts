@@ -1,31 +1,60 @@
 /**
- * Next.js Middleware for Route Protection
- * Enforces role-based access control
+ * Next.js Middleware for Internationalization and Route Protection
+ * Combines locale detection with role-based access control
  */
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import createIntlMiddleware from 'next-intl/middleware';
+import { locales, defaultLocale } from './i18n/config';
+
+// Create the intl middleware
+const intlMiddleware = createIntlMiddleware({
+  locales,
+  defaultLocale,
+  localePrefix: 'as-needed' // Only add locale prefix for non-default locales
+});
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get('auth_token')?.value;
 
-  // Define exact public routes
-  const exactPublicRoutes = ['/login', '/signup', '/'];
-
-  // Define public route prefixes (e.g., for marketing pages and CarePrep links)
-  const publicRoutePrefixes = ['/community', '/features', '/solutions', '/pricing', '/roadmap', '/demo', '/roi', '/security', '/changelog', '/guides', '/how-it-works', '/integrations', '/partners', '/careprep'];
-
-  // Check if the current pathname is an exact public route or starts with a public prefix
-  const isPublicRoute = exactPublicRoutes.includes(pathname) ||
-    publicRoutePrefixes.some(prefix => pathname.startsWith(prefix));
-
-  // Allow public routes and API auth/careprep routes
-  if (isPublicRoute || pathname.startsWith('/api/auth') || pathname.startsWith('/api/careprep')) {
+  // Skip locale handling for API routes and static files
+  if (
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.includes('.')
+  ) {
     return NextResponse.next();
   }
 
-  // Redirect to login if no token
+  // Handle internationalization
+  const intlResponse = intlMiddleware(request);
+
+  // Get pathname without locale prefix for route checks
+  const pathnameWithoutLocale = pathname.replace(/^\/(en|hi|fr)/, '') || '/';
+
+  const token = request.cookies.get('auth_token')?.value;
+
+  // Define exact public routes
+  const exactPublicRoutes = ['/login', '/signup', '/', '/register'];
+
+  // Define public route prefixes (e.g., for marketing pages and CarePrep links)
+  const publicRoutePrefixes = [
+    '/community', '/features', '/solutions', '/pricing', '/roadmap',
+    '/demo', '/roi', '/security', '/changelog', '/guides', '/how-it-works',
+    '/integrations', '/partners', '/careprep'
+  ];
+
+  // Check if the current pathname is an exact public route or starts with a public prefix
+  const isPublicRoute = exactPublicRoutes.includes(pathnameWithoutLocale) ||
+    publicRoutePrefixes.some(prefix => pathnameWithoutLocale.startsWith(prefix));
+
+  // Allow public routes
+  if (isPublicRoute) {
+    return intlResponse;
+  }
+
+  // Redirect to login if no token for protected routes
   if (!token) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
@@ -43,7 +72,6 @@ export async function middleware(request: NextRequest) {
     userRole = payload.role || '';
   } catch (e) {
     console.error('Error decoding token in middleware:', e);
-    // If token is invalid, redirect to login to clear state
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     const response = NextResponse.redirect(loginUrl);
@@ -52,7 +80,6 @@ export async function middleware(request: NextRequest) {
   }
 
   if (!userRole) {
-    // If no role found, treat as unauthenticated
     const loginUrl = new URL('/login', request.url);
     const response = NextResponse.redirect(loginUrl);
     response.cookies.delete('auth_token');
@@ -63,23 +90,23 @@ export async function middleware(request: NextRequest) {
   const isPatient = userRole === 'patient';
 
   // Provider route protection
-  if (pathname.startsWith('/provider') && !isProvider) {
+  if (pathnameWithoutLocale.startsWith('/provider') && !isProvider) {
     console.log('❌ Unauthorized access to provider route:', pathname, 'Role:', userRole);
     return NextResponse.redirect(new URL('/patient/dashboard', request.url));
   }
 
   // Patient route protection
-  if (pathname.startsWith('/patient') && !isPatient) {
+  if (pathnameWithoutLocale.startsWith('/patient') && !isPatient) {
     console.log('❌ Unauthorized access to patient route:', pathname, 'Role:', userRole);
     return NextResponse.redirect(new URL('/provider/dashboard', request.url));
   }
 
   // Allow admin routes - role checking is done in the admin layout
-  if (pathname.startsWith('/admin')) {
-    return NextResponse.next();
+  if (pathnameWithoutLocale.startsWith('/admin')) {
+    return intlResponse;
   }
 
-  return NextResponse.next();
+  return intlResponse;
 }
 
 export const config = {

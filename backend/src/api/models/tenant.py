@@ -45,6 +45,103 @@ class TenantStatus(str, Enum):
     PENDING_SETUP = "pending_setup"
 
 
+class RegionCode(str, Enum):
+    """Supported regional codes for internationalization."""
+    US = "us"      # United States
+    IN = "in"      # India
+    CA = "ca"      # Canada
+    UK = "uk"      # United Kingdom
+    AE = "ae"      # UAE
+    BR = "br"      # Brazil
+
+
+class Region(Base):
+    """
+    Region model for internationalization and data residency.
+    
+    Each region represents a geographic/regulatory zone with:
+    - Data residency requirements
+    - Compliance framework (HIPAA, DPDP, PIPEDA, etc.)
+    - Default language and currency
+    - Region-specific feature flags
+    
+    Attributes:
+        id: Short region code (us, in, ca, etc.)
+        name: Human-readable region name
+        default_language: Default UI language for the region
+        supported_languages: List of supported languages
+        default_currency: Currency code (USD, INR, CAD)
+        timezone: Default timezone for the region
+        compliance_framework: Primary compliance standard
+        is_active: Whether the region is available for new tenants
+    """
+    
+    __tablename__ = "regions"
+    
+    id = Column(String(10), primary_key=True)  # 'us', 'in', 'ca'
+    name = Column(String(100), nullable=False)  # 'United States', 'India'
+    
+    # Localization
+    default_language = Column(String(10), default="en", nullable=False)
+    supported_languages = Column(JSON, default=["en"], nullable=False)
+    default_currency = Column(String(3), default="USD", nullable=False)
+    timezone = Column(String(50), nullable=False)
+    
+    # Compliance & Data Residency
+    compliance_framework = Column(String(50), nullable=False)  # 'HIPAA', 'DPDP', 'PIPEDA'
+    data_center_location = Column(String(100), nullable=True)  # 'Azure US East', 'Azure India'
+    
+    # Communication Channels
+    primary_channel = Column(String(50), default="email", nullable=False)  # 'email', 'whatsapp', 'sms'
+    whatsapp_enabled = Column(Boolean, default=False, nullable=False)
+    sms_enabled = Column(Boolean, default=True, nullable=False)
+    
+    # Region-specific settings
+    settings = Column(JSON, default=dict, nullable=False)
+    """
+    Settings JSON structure:
+    {
+        "payment_providers": ["stripe", "upi"],
+        "ehr_integrations": ["epic", "cerner"],
+        "features": {
+            "telemedicine": true,
+            "prescription_delivery": false
+        }
+    }
+    """
+    
+    # Status
+    is_active = Column(Boolean, default=True, nullable=False)
+    
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    
+    # Relationships
+    tenants = relationship("Tenant", back_populates="region", lazy="dynamic")
+    
+    def __repr__(self):
+        return f"<Region(id={self.id}, name={self.name}, compliance={self.compliance_framework})>"
+    
+    def to_dict(self):
+        """Convert to API-safe dictionary."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "default_language": self.default_language,
+            "supported_languages": self.supported_languages,
+            "default_currency": self.default_currency,
+            "timezone": self.timezone,
+            "compliance_framework": self.compliance_framework,
+            "whatsapp_enabled": self.whatsapp_enabled,
+            "is_active": self.is_active,
+        }
+    
+    def is_language_supported(self, language_code: str) -> bool:
+        """Check if a language is supported in this region."""
+        return language_code in self.supported_languages
+
+
 class Tenant(Base, UUIDMixin, TimestampMixin):
     """
     Tenant/Organization model - the core of multi-tenancy.
@@ -67,6 +164,9 @@ class Tenant(Base, UUIDMixin, TimestampMixin):
     """
 
     __tablename__ = "tenants"
+
+    # Region (for internationalization)
+    region_id = Column(String(10), ForeignKey("regions.id"), nullable=True, default="us")
 
     # Basic Information
     name = Column(String(255), nullable=False)
@@ -173,6 +273,7 @@ class Tenant(Base, UUIDMixin, TimestampMixin):
     onboarding_step = Column(String(50), default="welcome", nullable=False)
 
     # Relationships
+    region = relationship("Region", back_populates="tenants")
     users = relationship("User", back_populates="tenant", lazy="dynamic")
     # Note: Patient relationship will be added when Patient model gets tenant_id column
     # patients = relationship("Patient", back_populates="tenant", lazy="dynamic")
