@@ -65,6 +65,10 @@ if settings.ENVIRONMENT == "production":
         allowed_hosts=settings.ALLOWED_HOSTS,
     )
 
+# Add region middleware for multi-region routing
+from src.api.middleware.region import RegionMiddleware
+app.add_middleware(RegionMiddleware)
+
 
 # Request timing middleware
 @app.middleware("http")
@@ -219,7 +223,16 @@ from src.api.routers import (
     auth, patients, visits, clinical, appointments, templates,
     ai_assistant, tasks, tenants,
     # CarePrep + ContextAI routers
-    careprep_unified, contextai, careprep_forms
+    careprep_unified, contextai, careprep_forms,
+    # India Market Integration
+    whatsapp,
+    # Compliance
+    consent,
+    # User Management (SaaS admin)
+    users,
+    support_access,
+    # Analytics
+    analytics,
 )
 
 # Core routers
@@ -237,6 +250,19 @@ app.include_router(tenants.router)
 app.include_router(careprep_unified.router)  # /api/careprep/* (AI symptom analysis)
 app.include_router(contextai.router)          # /api/contextai/* (provider context)
 app.include_router(careprep_forms.router)     # /api/careprep/forms/* (appointment forms)
+
+# India Market Integration
+app.include_router(whatsapp.router, prefix="/api")  # /api/whatsapp/*
+
+# Compliance (DPDP/GDPR consent management)
+app.include_router(consent.router)  # /api/consent/*
+
+# User Management (SaaS admin)
+app.include_router(users.router)  # /api/users/*
+app.include_router(support_access.router)  # /api/support-access/*
+
+# Analytics
+app.include_router(analytics.router)  # /api/analytics/*
 
 
 if __name__ == "__main__":

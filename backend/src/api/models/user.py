@@ -68,6 +68,7 @@ class User(Base, UUIDMixin, TimestampMixin):
     # patient relationship will be added when creating Patient model
     provider_visits = relationship("Visit", back_populates="provider", foreign_keys="Visit.provider_id")
     templates = relationship("Template", back_populates="user", foreign_keys="Template.user_id")
+    user_roles = relationship("UserRole", back_populates="user", foreign_keys="UserRole.user_id", lazy="joined")
 
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, role={self.role})>"

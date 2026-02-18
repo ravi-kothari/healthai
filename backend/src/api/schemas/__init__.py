@@ -27,18 +27,57 @@ from src.api.schemas.template_schemas import (
     TemplateUsageRequest,
     TemplateDuplicateRequest,
 )
+from src.api.schemas.user_management_schemas import (
+    # Enums
+    ScopeType,
+    AccessLevel,
+    # Role schemas
+    RoleResponse,
+    RoleListResponse,
+    # User role assignment
+    UserRoleAssignment,
+    AssignRoleRequest,
+    RevokeRoleRequest,
+    # User management
+    UserCreateRequest,
+    UserUpdateRequest,
+    UserDetailResponse,
+    UserListItemResponse,
+    UserListResponse,
+    UserListFilters,
+    # Invitations
+    UserInviteRequest,
+    UserInvitationResponse,
+    InvitationListResponse,
+    # Support access
+    SupportAccessRequestCreate,
+    SupportAccessGrantCreate,
+    SupportAccessGrantResponse,
+    SupportAccessGrantListResponse,
+    RevokeAccessRequest,
+    # Password
+    PasswordResetRequest,
+    PasswordResetConfirm,
+    PasswordChangeRequest,
+    # Bulk operations
+    BulkUserActionRequest,
+    BulkActionResult,
+)
 
 __all__ = [
+    # Auth
     "UserRegisterRequest",
     "UserLoginRequest",
     "TokenResponse",
     "UserResponse",
     "AuthResponse",
     "RefreshTokenRequest",
+    # Patients
     "PatientCreateRequest",
     "PatientUpdateRequest",
     "PatientResponse",
     "PatientListResponse",
+    # Templates
     "SOAPContent",
     "TemplateCreateRequest",
     "TemplateUpdateRequest",
@@ -48,4 +87,31 @@ __all__ = [
     "TemplateFilterRequest",
     "TemplateUsageRequest",
     "TemplateDuplicateRequest",
+    # User Management
+    "ScopeType",
+    "AccessLevel",
+    "RoleResponse",
+    "RoleListResponse",
+    "UserRoleAssignment",
+    "AssignRoleRequest",
+    "RevokeRoleRequest",
+    "UserCreateRequest",
+    "UserUpdateRequest",
+    "UserDetailResponse",
+    "UserListItemResponse",
+    "UserListResponse",
+    "UserListFilters",
+    "UserInviteRequest",
+    "UserInvitationResponse",
+    "InvitationListResponse",
+    "SupportAccessRequestCreate",
+    "SupportAccessGrantCreate",
+    "SupportAccessGrantResponse",
+    "SupportAccessGrantListResponse",
+    "RevokeAccessRequest",
+    "PasswordResetRequest",
+    "PasswordResetConfirm",
+    "PasswordChangeRequest",
+    "BulkUserActionRequest",
+    "BulkActionResult",
 ]
