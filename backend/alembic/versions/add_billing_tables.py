@@ -17,7 +17,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'add_billing_tables'
-down_revision = 'add_roles_permissions_system'
+down_revision = 'a1b2c3d4e5f6'  # add_roles_permissions_system
 branch_labels = None
 depends_on = None
 
