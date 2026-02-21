@@ -811,6 +811,203 @@ class APIClient {
     const response = await this.client.post(`/api/templates/${templateId}/favorite`);
     return response.data;
   }
+
+  // ==================== Analytics ====================
+
+  async getDashboard(scope?: string, scopeId?: string) {
+    const params = new URLSearchParams();
+    if (scope) params.append('scope', scope);
+    if (scopeId) params.append('scope_id', scopeId);
+    const response = await this.client.get(`/api/analytics/dashboard?${params.toString()}`);
+    return response.data;
+  }
+
+  async getPlatformDashboard() {
+    const response = await this.client.get('/api/analytics/dashboard/platform');
+    return response.data;
+  }
+
+  async getTenantDashboard(tenantId: string) {
+    const response = await this.client.get(`/api/analytics/dashboard/tenant/${tenantId}`);
+    return response.data;
+  }
+
+  async getMetricTimeseries(
+    metricName: string,
+    params?: {
+      scope?: string;
+      scope_id?: string;
+      start_date?: string;
+      end_date?: string;
+      period?: string;
+    }
+  ) {
+    const queryParams = new URLSearchParams();
+    if (params?.scope) queryParams.append('scope', params.scope);
+    if (params?.scope_id) queryParams.append('scope_id', params.scope_id);
+    if (params?.start_date) queryParams.append('start_date', params.start_date);
+    if (params?.end_date) queryParams.append('end_date', params.end_date);
+    if (params?.period) queryParams.append('period', params.period);
+    const response = await this.client.get(`/api/analytics/metrics/${metricName}/timeseries?${queryParams.toString()}`);
+    return response.data;
+  }
+
+  async getMetricComparison(
+    metricName: string,
+    params?: {
+      scope?: string;
+      scope_id?: string;
+      days?: number;
+    }
+  ) {
+    const queryParams = new URLSearchParams();
+    if (params?.scope) queryParams.append('scope', params.scope);
+    if (params?.scope_id) queryParams.append('scope_id', params.scope_id);
+    if (params?.days) queryParams.append('days', params.days.toString());
+    const response = await this.client.get(`/api/analytics/metrics/${metricName}/comparison?${queryParams.toString()}`);
+    return response.data;
+  }
+
+  async getMetricDefinitions(category?: string) {
+    const params = category ? `?category=${category}` : '';
+    const response = await this.client.get(`/api/analytics/metrics/definitions${params}`);
+    return response.data;
+  }
+
+  async generateSnapshot(scope: string, scopeId?: string) {
+    const params = new URLSearchParams();
+    params.append('scope', scope);
+    if (scopeId) params.append('scope_id', scopeId);
+    const response = await this.client.post(`/api/analytics/snapshots/generate?${params.toString()}`);
+    return response.data;
+  }
+
+  // ==================== User Management ====================
+
+  async getUsers(params?: {
+    tenant_id?: string;
+    role?: string;
+    search?: string;
+    is_active?: boolean;
+    skip?: number;
+    limit?: number;
+  }) {
+    const queryParams = new URLSearchParams();
+    if (params?.tenant_id) queryParams.append('tenant_id', params.tenant_id);
+    if (params?.role) queryParams.append('role', params.role);
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.is_active !== undefined) queryParams.append('is_active', params.is_active.toString());
+    if (params?.skip) queryParams.append('skip', params.skip.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    const response = await this.client.get(`/api/users?${queryParams.toString()}`);
+    return response.data;
+  }
+
+  async getUserById(userId: string) {
+    const response = await this.client.get(`/api/users/${userId}`);
+    return response.data;
+  }
+
+  async createUser(data: {
+    email: string;
+    full_name: string;
+    tenant_id?: string;
+    role_id?: string;
+    password?: string;
+    send_invitation?: boolean;
+  }) {
+    const response = await this.client.post('/api/users', data);
+    return response.data;
+  }
+
+  async updateUser(userId: string, data: {
+    full_name?: string;
+    is_active?: boolean;
+    tenant_id?: string;
+    metadata?: Record<string, unknown>;
+  }) {
+    const response = await this.client.patch(`/api/users/${userId}`, data);
+    return response.data;
+  }
+
+  async deleteUser(userId: string) {
+    const response = await this.client.delete(`/api/users/${userId}`);
+    return response.data;
+  }
+
+  async getUserRoles(userId: string) {
+    const response = await this.client.get(`/api/users/${userId}/roles`);
+    return response.data;
+  }
+
+  async assignUserRole(userId: string, data: {
+    role_id: string;
+    scope_type: string;
+    scope_id?: string;
+    is_primary?: boolean;
+    expires_at?: string;
+  }) {
+    const response = await this.client.post(`/api/users/${userId}/roles`, data);
+    return response.data;
+  }
+
+  async revokeUserRole(userId: string, roleAssignmentId: string) {
+    const response = await this.client.delete(`/api/users/${userId}/roles?assignment_id=${roleAssignmentId}`);
+    return response.data;
+  }
+
+  async getAvailableRoles(scopeType?: string) {
+    const params = scopeType ? `?scope_type=${scopeType}` : '';
+    const response = await this.client.get(`/api/users/roles/available${params}`);
+    return response.data;
+  }
+
+  // ==================== Support Access ====================
+
+  async getMySupportGrants() {
+    const response = await this.client.get('/api/support-access/my-grants');
+    return response.data;
+  }
+
+  async requestSupportAccess(data: {
+    tenant_id: string;
+    access_level: 'metadata' | 'full';
+    reason: string;
+    requested_hours?: number;
+  }) {
+    const response = await this.client.post('/api/support-access/request', data);
+    return response.data;
+  }
+
+  async getTenantSupportGrants(tenantId: string, includeRevoked?: boolean) {
+    const params = includeRevoked !== undefined ? `?include_revoked=${includeRevoked}` : '';
+    const response = await this.client.get(`/api/support-access/tenant/${tenantId}/grants${params}`);
+    return response.data;
+  }
+
+  async grantSupportAccess(tenantId: string, data: {
+    user_id: string;
+    access_level: 'metadata' | 'full';
+    duration_hours?: number;
+    reason?: string;
+  }) {
+    const response = await this.client.post(`/api/support-access/tenant/${tenantId}/grant`, data);
+    return response.data;
+  }
+
+  async revokeSupportGrant(grantId: string, reason?: string) {
+    const body = reason ? { reason } : {};
+    const response = await this.client.post(`/api/support-access/grant/${grantId}/revoke`, body);
+    return response.data;
+  }
+
+  async getAllSupportGrants(activeOnly?: boolean, tenantId?: string) {
+    const params = new URLSearchParams();
+    if (activeOnly !== undefined) params.append('active_only', activeOnly.toString());
+    if (tenantId) params.append('tenant_id', tenantId);
+    const response = await this.client.get(`/api/support-access/all?${params.toString()}`);
+    return response.data;
+  }
 }
 
 export const apiClient = new APIClient();
